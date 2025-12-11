@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  VERY_RARE
+  LEGENDARY
+  STORY
+}
+
+enum ItemStatus {
+  TO_GET // à récupérer
+  IN_PROGRESS // en cours (optionnel)
+  OBTAINED // récupéré
+}
+
+enum SourceType {
+  MERCHANT
+  QUEST
+  POI
+}
+
+model Run {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  characters Character[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Character {
+  id       Int     @id @default(autoincrement())
+  name     String
+  classe   String?
+  subclass String?
+
+  run   Run @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runId Int
+
+  items CharacterItem[]
+}
+
+model Item {
+  id   Int    @id @default(autoincrement())
+  name String
+  type String // arme, armure, anneau, etc.
+  act  Int // 1, 2 ou 3
+
+  // Source de l'item (polymorphique)
+  sourceType SourceType
+  sourceId   Int
+
+  // Optionnels
+  image       String?
+  description String?
+  rarity      Rarity?
+
+  characterItems CharacterItem[]
+}
+
+model CharacterItem {
+  id Int @id @default(autoincrement())
+
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId Int
+
+  item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId Int
+
+  status ItemStatus @default(TO_GET)
+  note   String?
+
+  // Empêche un doublon character+item sur la même run
+  @@unique([characterId, itemId])
+}

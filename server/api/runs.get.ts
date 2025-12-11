@@ -1,0 +1,13 @@
+// server/api/runs.get.ts
+import { prisma } from "../utils/prisma"
+
+export default defineEventHandler(async () => {
+  const runs = await prisma.run.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      characters: true,
+    },
+  })
+
+  return runs
+})
