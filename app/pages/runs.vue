@@ -38,7 +38,7 @@ const deleteRun = async (runId: number) => {
 </script>
 
 <template>
-    <main class="max-w-4xl mx-auto p-6 space-y-8">
+    <main class="mx-auto p-6 space-y-8">
         <header class="space-y-2">
             <h1 class="text-2xl font-bold">
                 Mes runs Baldur's Gate 3

@@ -28,27 +28,27 @@ const items = ref<NavigationMenuItem[][]>([
         {
             label: 'Marchands',
             icon: 'i-lucide-store',
-            to: '/test',
-            active: route.startsWith('/test'),
+            to: '/merchants',
+            active: route.startsWith('/merchants'),
         },
         {
             label: 'Quêtes',
             icon: 'i-lucide-bookmark',
-            to: '/test',
-            active: route.startsWith('/test'),
+            to: '/quests',
+            active: route.startsWith('/quests'),
         },
         {
             label: 'Points d\'intérêt',
             icon: 'i-lucide-compass',
-            to: '/test',
-            active: route.startsWith('/test'),
+            to: '/pois',
+            active: route.startsWith('/pois'),
         },
         {
             label: 'Boss / Autres NPCs',
             icon: 'i-lucide-drama',
-            to: '/settings',
-            active: route.startsWith('/settings'),
-        }
+            to: '/npcs',
+            active: route.startsWith('/npcs'),
+        },
     ]
 ])
 
@@ -62,7 +62,7 @@ watch(() => useRoute().path, (newPath) => {
 </script>
 
 <template>
-    <div class="flex h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div class="flex h-screen w-full overflow-hidden">
         <aside
             class="flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all duration-300"
             :class="[isOpen ? 'w-64' : 'w-16']">

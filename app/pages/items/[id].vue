@@ -25,7 +25,7 @@ async function onSubmit(data: any) {
         toast.add({
             title: 'Erreur',
             description: 'Une erreur est survenue lors de la modification de l\'item',
-            color: 'red'
+            color: 'error'
         })
     }
 }
