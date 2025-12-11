@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -11,6 +8,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url dans ton .env : DATABASE_URL="postgresql://user:pass@host:port/db"
 }
 
 enum Rarity {
@@ -41,8 +39,9 @@ model Run {
 
   characters Character[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
+  characterItems CharacterItem[]
 }
 
 model Character {
@@ -54,7 +53,9 @@ model Character {
   run   Run @relation(fields: [runId], references: [id], onDelete: Cascade)
   runId Int
 
-  items CharacterItem[]
+  items     CharacterItem[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
 }
 
 model Item {
@@ -63,9 +64,18 @@ model Item {
   type String // arme, armure, anneau, etc.
   act  Int // 1, 2 ou 3
 
-  // Source de l'item (polymorphique)
+  // Source principale de l'item
   sourceType SourceType
-  sourceId   Int
+
+  // Relations optionnelles vers les entités de source
+  merchant   Merchant? @relation(fields: [merchantId], references: [id])
+  merchantId Int?
+
+  quest   Quest? @relation(fields: [questId], references: [id])
+  questId Int?
+
+  poi   Poi? @relation(fields: [poiId], references: [id])
+  poiId Int?
 
   // Optionnels
   image       String?
@@ -73,10 +83,19 @@ model Item {
   rarity      Rarity?
 
   characterItems CharacterItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  npc       Npc?     @relation(fields: [npcId], references: [id])
+  npcId     Int?
 }
 
 model CharacterItem {
   id Int @id @default(autoincrement())
+
+  // On dénormalise le run ici pour pouvoir poser une contrainte au niveau DB
+  run   Run @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runId Int
 
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId Int
@@ -84,9 +103,68 @@ model CharacterItem {
   item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
   itemId Int
 
-  status ItemStatus @default(TO_GET)
-  note   String?
+  status    ItemStatus @default(TO_GET)
+  note      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now()) @updatedAt
 
-  // Empêche un doublon character+item sur la même run
-  @@unique([characterId, itemId])
+  // Empêche qu'un même item soit assigné à plusieurs personnages dans la même run
+  @@unique([runId, itemId], name: "uniq_item_per_run")
+}
+
+// === Nouvelles entités de source ===
+
+model Merchant {
+  id       Int     @id @default(autoincrement())
+  name     String
+  act      Int // acte où il se trouve
+  pos_x    Int? // zone / description
+  pos_y    Int?
+  wikiLink String?
+
+  items     Item[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Quest {
+  id       Int     @id @default(autoincrement())
+  name     String
+  act      Int
+  npcId    Int? // npc qui donne la récompense
+  phase    String? // étape, sous-phase, etc.
+  wikiLink String?
+
+  items     Item[]
+  npc       Npc?     @relation(fields: [npcId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Poi {
+  id       Int     @id @default(autoincrement())
+  name     String
+  act      Int
+  pos_x    Int? // zone / description
+  pos_y    Int?
+  wikiLink String?
+
+  items     Item[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// === Nouvelle entité Boss / NPC De quêtes ===
+model Npc {
+  id       Int     @id @default(autoincrement())
+  name     String
+  act      Int
+  pos_x    Int? // zone / description
+  pos_y    Int?
+  wikiLink String?
+
+  items     Item[]
+  quests    Quest[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }

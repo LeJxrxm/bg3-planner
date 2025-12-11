@@ -8,4 +8,5 @@ export default defineNuxtConfig({
   runtimeConfig: {
     databaseUrl: ''
   },
+  ssr: true,
 })

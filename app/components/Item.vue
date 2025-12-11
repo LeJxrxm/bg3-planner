@@ -33,7 +33,7 @@ const textColors = {
                 <div class="text-xs">{{ rarity }}</div>
             </div>
             <div class="lg:col-span-4 flex items-center justify-end">
-                <NuxtImg src="/images/Birthright_hat.webp" placeholder alt="Item Image" sizes="100"
+                <NuxtImg src="/images/Birthright_hat.webp" alt="Item Image" sizes="100"
                     class="rounded-xl object-contain z-40 bg-clip-content" format="png" />
             </div>
         </div>

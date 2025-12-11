@@ -31,6 +31,24 @@ const items = ref<NavigationMenuItem[][]>([
             to: '/test',
             active: route.startsWith('/test'),
         },
+        {
+            label: 'Quêtes',
+            icon: 'i-lucide-bookmark',
+            to: '/test',
+            active: route.startsWith('/test'),
+        },
+        {
+            label: 'Points d\'intérêt',
+            icon: 'i-lucide-compass',
+            to: '/test',
+            active: route.startsWith('/test'),
+        },
+        {
+            label: 'Boss / Autres NPCs',
+            icon: 'i-lucide-drama',
+            to: '/settings',
+            active: route.startsWith('/settings'),
+        }
     ]
 ])
 
@@ -54,7 +72,10 @@ watch(() => useRoute().path, (newPath) => {
                 <UButton icon="i-heroicons-bars-3" color="neutral" variant="ghost" @click="isOpen = !isOpen" />
             </div>
 
-            <UNavigationMenu :collapsed="!isOpen" orientation="vertical" :items="items" />
+            <UNavigationMenu :collapsed="!isOpen" orientation="vertical" :items="items" :ui="{
+                list: 'space-y-3',
+                childList: !isOpen ? '' : 'space-y-1'
+            }" />
 
         </aside>
 
