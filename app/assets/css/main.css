@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme {
+    --color-common: #FFA03C;
+    --color-uncommon: #01bd39;
+    --color-rare: #01bfff;
+    --color-very-rare: #d1017b;
+    --color-legendary: #b7861d;
+    --color-story: #ff5901;
+
+    --ui-common: var(--color-common);
+    --ui-uncommon: var(--color-uncommon);
+    --ui-rare: var(--color-rare);
+    --ui-very-rare: var(--color-very-rare);
+    --ui-legendary: var(--color-legendary);
+    --ui-story: var(--color-story);
+}

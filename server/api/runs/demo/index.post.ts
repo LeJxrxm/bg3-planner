@@ -1,5 +1,5 @@
 // server/api/runs/demo.post.ts
-import { prisma } from '../../utils/prisma'
+import { prisma } from '../../../utils/prisma'
 
 export default defineEventHandler(async () => {
     const run = await prisma.run.create({

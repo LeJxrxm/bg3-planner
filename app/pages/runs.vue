@@ -28,6 +28,13 @@ const createDemoRun = async () => {
     })
     await refresh()
 }
+
+const deleteRun = async (runId: number) => {
+    await $fetch(`/api/runs/${runId}`, {
+        method: 'DELETE',
+    })
+    await refresh()
+}
 </script>
 
 <template>
@@ -61,14 +68,14 @@ const createDemoRun = async () => {
                 </div>
 
                 <div class="flex gap-3">
-                    <button type="button" class="px-4 py-2 text-sm rounded bg-blue-600 text-white disabled:opacity-50"
+                    <UButton type="button" class="px-4 py-2 text-sm rounded bg-blue-600 text-white disabled:opacity-50"
                         :disabled="!newRunName.trim()" @click="createRun">
                         Créer la run
-                    </button>
+                    </UButton>
 
-                    <button type="button" class="px-4 py-2 text-sm rounded border" @click="createDemoRun">
+                    <UButton type="button" class="px-4 py-2 text-sm rounded border" @click="createDemoRun">
                         Créer une run de test (Tav / Karlach / Gale / Wyll)
-                    </button>
+                    </UButton>
                 </div>
             </div>
         </section>
@@ -106,6 +113,8 @@ const createDemoRun = async () => {
                         <div class="text-xs text-gray-400">
                             Créée le
                             {{ new Date(run.createdAt).toLocaleString() }}
+                            <UButton type="button" class="ml-4 text-blue-600 underline p-0" @click="deleteRun(run.id)"
+                                icon="lucide-trash" />
                         </div>
                     </div>
 
