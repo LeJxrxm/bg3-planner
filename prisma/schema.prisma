@@ -49,6 +49,7 @@ model Character {
   name     String
   classe   String?
   subclass String?
+  image    String?
 
   run   Run @relation(fields: [runId], references: [id], onDelete: Cascade)
   runId Int
@@ -121,6 +122,7 @@ model Merchant {
   pos_x    Int? // zone / description
   pos_y    Int?
   wikiLink String?
+  image    String?
 
   items     Item[]
   createdAt DateTime @default(now())
@@ -134,6 +136,7 @@ model Quest {
   npcId    Int? // npc qui donne la récompense
   phase    String? // étape, sous-phase, etc.
   wikiLink String?
+  image    String?
 
   items     Item[]
   npc       Npc?     @relation(fields: [npcId], references: [id])
@@ -148,6 +151,7 @@ model Poi {
   pos_x    Int? // zone / description
   pos_y    Int?
   wikiLink String?
+  image    String?
 
   items     Item[]
   createdAt DateTime @default(now())
@@ -162,6 +166,7 @@ model Npc {
   pos_x    Int? // zone / description
   pos_y    Int?
   wikiLink String?
+  image    String?
 
   items     Item[]
   quests    Quest[]
