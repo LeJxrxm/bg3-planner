@@ -1,5 +1,5 @@
 // server/api/runs.get.ts
-import { prisma } from "../utils/prisma"
+import { prisma } from "~~/server/utils/prisma"
 
 export default defineEventHandler(async () => {
   const runs = await prisma.run.findMany({
