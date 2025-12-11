@@ -25,3 +25,4 @@ dev.db
 !.env.example
 
 generated/prisma
+public/uploads

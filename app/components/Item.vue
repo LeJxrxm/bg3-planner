@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+import type { Item } from '~~/generated/prisma/client';
 import { Rarity } from '~~/generated/prisma/enums';
 
 const colors = {
@@ -20,28 +20,31 @@ const textColors = {
     [Rarity.STORY]: 'text-story',
 }
 
-
+const props = defineProps<{
+    item: Item
+}>();
 </script>
 
 <template>
 
-    <UCard v-for="rarity in Rarity" :key="rarity"
-        :class="[`border rounded bg-linear-to-b from-2% to-transparent via-transparent max-w-lg z-10 p-4 space-y-1 my-2 relative overflow-visible`, colors[rarity]]">
+    <UCard :class="[
+        `h-full border transition ease-in duration-100 rounded bg-linear-to-b from-2% to-transparent via-transparent max-w-lg z-10 p-4 space-y-1 my-2 relative overflow-visible`,
+        colors[item.rarity],
+        'hover:scale-[1.02]'
+    ]">
         <div class="grid grid-cols-2 lg:grid-cols-6">
             <div class="lg:col-span-2">
-                <div class="text-lg" :class="textColors[rarity]">Item</div>
-                <div class="text-xs">{{ rarity }}</div>
+                <div class="text-lg" :class="textColors[item.rarity]">{{ item.name }}</div>
+                <div class="text-xs">{{ item.rarity }}</div>
             </div>
             <div class="lg:col-span-4 flex items-center justify-end">
-                <NuxtImg src="/images/Birthright_hat.webp" alt="Item Image" sizes="100"
+                <NuxtImg :src="item.image || '/images/Birthright_hat.webp'" alt="Item Image" sizes="100"
                     class="rounded-xl object-contain z-40 bg-clip-content" format="png" />
             </div>
         </div>
         <USeparator :color="'warning'" class="my-5" />
-        <p>
-            Ceci est un objet de rareté <span :class="textColors[rarity]">{{ rarity }}</span>. Lorem ipsum dolor sit
-            amet consectetur, adipisicing elit. Quibusdam ab nostrum explicabo distinctio? Eveniet dolorum in quisquam
-            aliquam, sed aspernatur explicabo illum optio, labore quidem aut illo nobis! Necessitatibus, molestiae.
+        <p v-if="item.description">
+            {{ item.description }}
         </p>
     </UCard>
 </template>

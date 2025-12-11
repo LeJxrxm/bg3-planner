@@ -1,0 +1,72 @@
+<script setup lang="ts">
+import type { Item } from '~~/generated/prisma/client'
+
+
+const itemsPerPage = ref<number>(20);
+const page = ref<number>(1);
+
+interface ItemsResponse {
+    items: Item[]
+    total: number
+}
+
+const { data: items, refresh } = await useFetch<ItemsResponse>('/api/items', {
+    query: {
+        page,
+        itemsPerPage
+    }
+})
+
+// const handlePageUpdate = (newPage: number) => {
+//     page.value = newPage;
+//     refresh();
+// }
+
+async function deleteItem(id: number) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet item ?')) return
+
+    try {
+        await $fetch(`/api/items/${id}`, {
+            method: 'DELETE'
+        })
+        refresh()
+    } catch (error) {
+        console.error('Erreur lors de la suppression', error)
+        alert('Erreur lors de la suppression')
+    }
+}
+
+function getRarityColor(rarity: string | null) {
+    switch (rarity) {
+        case 'LEGENDARY': return 'warning'
+        case 'VERY_RARE': return 'secondary'
+        case 'RARE': return 'info'
+        case 'UNCOMMON': return 'success'
+        default: return 'neutral'
+    }
+}
+</script>
+
+<template>
+    <div class="space-y-4">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Items</h1>
+            <UButton to="/items/add" icon="i-heroicons-plus" color="primary">
+                Ajouter un item
+            </UButton>
+        </div>
+
+        <div v-if="items?.items.length" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <NuxtLink v-for="item in items.items" :key="item.id" :to="`/items/${item.id}`">
+                <Item :item="item" />
+            </NuxtLink>
+        </div>
+
+        <div v-else class="text-center py-8 text-gray-500">
+            Aucun item trouvé.
+        </div>
+
+        <UPagination v-if="items && items.total > itemsPerPage" :total="items.total" :items-per-page="itemsPerPage"
+            v-model:page="page" />
+    </div>
+</template>

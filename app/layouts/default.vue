@@ -22,8 +22,8 @@ const items = ref<NavigationMenuItem[][]>([
         {
             label: 'Objets',
             icon: 'i-lucide-box',
-            to: '/test',
-            active: route.startsWith('/test'),
+            to: '/items',
+            active: route.startsWith('/items'),
         },
         {
             label: 'Marchands',
@@ -80,10 +80,7 @@ watch(() => useRoute().path, (newPath) => {
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <div class="flex-1 overflow-y-auto p-4">
-                <div class="flex flex-wrap gap-4 mb-6">
-                    <Item />
-                </div>
+            <div class="flex-1 overflow-y-auto py-4 px-4 md:px-8">
                 <slot />
             </div>
         </main>
