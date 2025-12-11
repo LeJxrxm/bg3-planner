@@ -19,6 +19,9 @@ logs
 .idea
 
 # Local env files
+dev.db
 .env
 .env.*
 !.env.example
+
+/app/generated/prisma
