@@ -15,4 +15,56 @@
     --ui-very-rare: var(--color-very-rare);
     --ui-legendary: var(--color-legendary);
     --ui-story: var(--color-story);
+
+    /* Baldur's Gate 3 Inspired Colors */
+    --color-bg3-dark: #0f0e0b;
+    --color-bg3-panel: #1a1815;
+    --color-bg3-border: #4a4238;
+    --color-bg3-gold: #c8a45c;
+    --color-bg3-gold-hover: #e6c67e;
+    --color-bg3-text: #dcdcdc;
+    --color-bg3-text-muted: #9a9a9a;
+    --color-bg3-red: #8a2be2; /* Using a mystical purple/red vibe or standard dark red #700000 */
+    
+    /* Overriding Nuxt UI Primary to match BG3 Gold */
+    --color-primary-50: #fbf8f1;
+    --color-primary-100: #f5efe0;
+    --color-primary-200: #eadbc0;
+    --color-primary-300: #dec098;
+    --color-primary-400: #cfa06b;
+    --color-primary-500: #c8a45c; /* Main Gold */
+    --color-primary-600: #b08846;
+    --color-primary-700: #8e6a37;
+    --color-primary-800: #755632;
+    --color-primary-900: #61482d;
+    --color-primary-950: #362717;
+
+    /* Overriding Nuxt UI Gray/Neutral to match BG3 Dark UI */
+    --color-gray-50: #f6f5f4;
+    --color-gray-100: #e8e6e3;
+    --color-gray-200: #d3cfc9;
+    --color-gray-300: #b6b0a6;
+    --color-gray-400: #958d81;
+    --color-gray-500: #766e62;
+    --color-gray-600: #5d564c;
+    --color-gray-700: #4a4238; /* Borders */
+    --color-gray-800: #2d2822;
+    --color-gray-900: #1a1815; /* Panels */
+    --color-gray-950: #0f0e0b; /* Backgrounds */
+
+    --ui-primary: var(--color-bg3-gold);
+}
+
+:root {
+    --ui-bg: var(--color-gray-950);
+    --ui-bg-elevated: var(--color-gray-900);
+    --ui-border: var(--color-gray-700);
+    --ui-text: var(--color-bg3-text);
+    --ui-text-muted: var(--color-bg3-text-muted);
+}
+
+.dark {
+    --ui-bg: var(--color-gray-950);
+    --ui-bg-elevated: var(--color-gray-900);
+    --ui-border: var(--color-gray-700);
 }
