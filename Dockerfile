@@ -20,13 +20,16 @@ ENV NUXT_DATABASE_URL=$NUXT_DATABASE_URL
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/prisma.config.ts ./
+
+# Copy Prisma files first (better caching)
+COPY prisma.config.ts ./
+COPY prisma ./prisma
+
+# Generate Prisma Client (cached if schema unchanged)
+RUN npx prisma generate
 
 # Copy application files
 COPY . .
-
-# Generate Prisma Client
-RUN npx prisma generate
 
 # Build the application
 RUN npm run build
