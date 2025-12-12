@@ -41,9 +41,11 @@ export default defineEventHandler(async (event) => {
 
   const safeFileName = `${randomUUID()}.${ext}`
   
-  // Save to public/uploads
+  // Save to public/uploads in dev, .output/public/uploads in production
   // @ts-ignore
-  const uploadDir = join(process.cwd(), 'public', 'uploads')
+  const uploadDir = process.env.NODE_ENV === 'production' 
+    ? join(process.cwd(), '.output', 'public', 'uploads')
+    : join(process.cwd(), 'public', 'uploads')
   
   await mkdir(uploadDir, { recursive: true })
   

@@ -23,7 +23,7 @@ services:
       - NUXT_HOST=0.0.0.0
       - NUXT_PORT=3000
     volumes:
-      - app-uploads:/app/public/uploads
+      - app-uploads:/app/.output/public/uploads
     depends_on:
       - bg3-postgres
     restart: unless-stopped

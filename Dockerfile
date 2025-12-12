@@ -41,11 +41,8 @@ COPY --from=builder /app/prisma ./prisma
 # Copy built application from builder
 COPY --from=builder /app/.output ./.output
 
-# Copy public directory for static assets
-COPY --from=builder /app/public ./public
-
-# Create uploads directory with proper permissions
-RUN mkdir -p /app/public/uploads && chown -R node:node /app/public/uploads
+# Create uploads directory in .output/public with proper permissions
+RUN mkdir -p /app/.output/public/uploads && chown -R node:node /app/.output/public/uploads
 
 # Install production dependencies and generate Prisma client
 RUN npm install --production && npx prisma generate
