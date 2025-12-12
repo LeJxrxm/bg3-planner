@@ -5,6 +5,9 @@ import type { Item } from '~~/generated/prisma/client'
 const itemsPerPage = ref<number>(12);
 const page = ref<number>(1);
 const search = ref<string>('');
+// Flag to prevent duplicate refresh when search resets page
+// Plain variable is sufficient as watchers run synchronously in JS single-threaded execution
+let isSearching = false;
 
 interface ItemsResponse {
     items: Item[]
@@ -24,21 +27,27 @@ const { data: items, refresh } = await useFetch<ItemsResponse>('/api/items', {
 let debounceTimer: NodeJS.Timeout | null = null
 watch(search, () => {
     if (debounceTimer) clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => {
+    debounceTimer = setTimeout(async () => {
+        isSearching = true
         page.value = 1 // Reset to first page when searching
-        refresh()
+        try {
+            await refresh()
+        } finally {
+            isSearching = false
+        }
     }, 300)
+})
+
+// Watch for page changes (only refresh if not triggered by search)
+watch(page, () => {
+    if (isSearching) return
+    refresh()
 })
 
 // Clean up timer on unmount
 onUnmounted(() => {
     if (debounceTimer) clearTimeout(debounceTimer)
 })
-
-// const handlePageUpdate = (newPage: number) => {
-//     page.value = newPage;
-//     refresh();
-// }
 
 async function deleteItem(id: number) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet item ?')) return
