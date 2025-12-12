@@ -4,10 +4,11 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json package-lock.json* ./
 
 # Install pnpm and dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+#RUN npm install -g pnpm && pnpm install --frozen-lockfile
+RUN npm install
 
 # Copy application files
 COPY . .
@@ -16,7 +17,7 @@ COPY . .
 RUN npx prisma generate
 
 # Build the application
-RUN pnpm build
+RUN npm run build
 
 # Stage 2: Production
 FROM node:20-alpine
@@ -24,17 +25,14 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json package-lock.json* ./
 
 # Install pnpm and production dependencies only
-RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
+#RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
+RUN npm install --production
 
 # Copy Prisma schema and generate client
 COPY --from=builder /app/prisma ./prisma
-RUN npx prisma generate
-
-# Copy built application
-COPY --from=builder /app/.output ./.output
 
 # Expose port
 EXPOSE 3000
