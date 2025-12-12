@@ -256,19 +256,19 @@ const roadmapByAct = computed(() => {
             if (item.merchant) {
                 sourceType = 'merchant'
                 sourceName = item.merchant.name
-                sourceAct = item.merchant.act
+                // sourceAct = item.merchant.act
             } else if (item.quest) {
                 sourceType = 'quest'
                 sourceName = item.quest.name
-                sourceAct = item.quest.act
+                // sourceAct = item.quest.act
             } else if (item.poi) {
                 sourceType = 'poi'
                 sourceName = item.poi.name
-                sourceAct = item.poi.act
+                // sourceAct = item.poi.act
             } else if (item.npc) {
                 sourceType = 'npc'
                 sourceName = item.npc.name
-                sourceAct = item.npc.act
+                // sourceAct = item.npc.act
             }
 
             roadmapItems.push({
