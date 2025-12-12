@@ -30,6 +30,11 @@ watch(search, () => {
     }, 300)
 })
 
+// Clean up timer on unmount
+onUnmounted(() => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+})
+
 // const handlePageUpdate = (newPage: number) => {
 //     page.value = newPage;
 //     refresh();
