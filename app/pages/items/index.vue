@@ -30,15 +30,15 @@ watch(search, () => {
     }, 300)
 })
 
+// Watch for page changes
+watch(page, () => {
+    refresh()
+})
+
 // Clean up timer on unmount
 onUnmounted(() => {
     if (debounceTimer) clearTimeout(debounceTimer)
 })
-
-// const handlePageUpdate = (newPage: number) => {
-//     page.value = newPage;
-//     refresh();
-// }
 
 async function deleteItem(id: number) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet item ?')) return
