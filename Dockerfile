@@ -3,22 +3,16 @@ FROM node:20-alpine AS deps
 
 WORKDIR /app
 
-# Enable pnpm via corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
 # Copy only package files for better caching
-COPY package.json prisma.config.ts ./
+COPY package.json package-lock.json* prisma.config.ts ./
 
-# Install dependencies (pnpm will generate lockfile)
-RUN pnpm install --no-frozen-lockfile
+# Install dependencies
+RUN npm ci --prefer-offline --no-audit
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Enable pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Set build-time environment variable (dummy value for build)
 ARG NUXT_DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy
@@ -38,10 +32,10 @@ RUN npx prisma generate
 COPY . .
 
 # Build the application
-RUN pnpm run build
+RUN npm run build
 
 # Remove dev dependencies to reduce size
-RUN pnpm prune --prod
+RUN npm prune --production
 
 # Stage 3: Production
 FROM node:20-alpine
