@@ -28,8 +28,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Set runtime environment variable requirement
-ARG NUXT_DATABASE_URL
+# Set build-time environment variable (dummy value for prisma generate)
+ARG NUXT_DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy
 ENV NUXT_DATABASE_URL=$NUXT_DATABASE_URL
 
 # Copy package files
