@@ -3,11 +3,22 @@ import type { TableColumn } from '@nuxt/ui'
 import type { Poi } from '~~/generated/prisma/client'
 
 const UButton = resolveComponent('UButton');
+const UAvatar = resolveComponent('UAvatar');
 
 const columns: Array<TableColumn<Poi>> = [
     {
         accessorKey: 'name',
         header: 'Point d\'intérêt',
+        cell: ({ row }) => {
+            return h('div', { class: 'flex items-center gap-3' }, [
+                row.original.image ? h(UAvatar, {
+                    src: row.original.image,
+                    alt: row.original.name,
+                    size: 'sm'
+                }) : null,
+                h('span', row.original.name)
+            ])
+        }
     },
     {
         accessorKey: 'actions',

@@ -404,7 +404,7 @@ const getSourceIcon = (sourceType: string) => {
                                         <div class="text-3xl font-bold text-hypr-accent">{{
                                             selectedCharacter.items?.length
                                             || 0
-                                            }} / 12</div>
+                                        }} / 12</div>
                                     </div>
                                 </div>
                             </UCard>
@@ -473,8 +473,13 @@ const getSourceIcon = (sourceType: string) => {
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
-                                            class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
-                                        <div class="flex items-center gap-2 text-xs text-hypr-muted mb-1">
+                                            class="font-semibold truncate">{{ roadmapItem.item.name }}
+                                        </div>
+                                        <template v-if="roadmapItem.item.wikiLink">
+                                            <NuxtLink :to="roadmapItem.item.wikiLink"
+                                                class="text-hypr-accent hover:underline text-xs">Wiki</NuxtLink>
+                                        </template>
+                                        <div class="flex items-center gap-2 text-xs text-hypr-muted my-1">
                                             <UIcon :name="getSourceIcon(roadmapItem.sourceType)" class="w-3 h-3" />
                                             <span class="truncate">{{ roadmapItem.sourceName }}</span>
                                         </div>
@@ -488,7 +493,7 @@ const getSourceIcon = (sourceType: string) => {
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
                                             <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -539,7 +544,7 @@ const getSourceIcon = (sourceType: string) => {
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
                                             <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -590,7 +595,7 @@ const getSourceIcon = (sourceType: string) => {
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
                                             <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>

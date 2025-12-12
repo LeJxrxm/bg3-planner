@@ -8,8 +8,14 @@ const route = useRoute().path;
 const items = ref<NavigationMenuItem[][]>([
     [
         {
-            label: 'Plans',
-            icon: 'i-lucide-map',
+            label: 'Dashboard',
+            icon: 'i-lucide-layout-dashboard',
+            to: '/',
+            active: route === '/',
+        },
+        {
+            label: 'Runs',
+            icon: 'i-lucide-gamepad-2',
             to: '/runs',
             active: route.startsWith('/runs'),
         },
@@ -20,32 +26,32 @@ const items = ref<NavigationMenuItem[][]>([
             active: route.startsWith('/characters'),
         },
         {
-            label: 'Objets',
-            icon: 'i-lucide-box',
+            label: 'Items',
+            icon: 'i-lucide-package',
             to: '/items',
             active: route.startsWith('/items'),
         },
         {
             label: 'Marchands',
-            icon: 'i-lucide-store',
+            icon: 'i-lucide-shopping-bag',
             to: '/merchants',
             active: route.startsWith('/merchants'),
         },
         {
             label: 'Quêtes',
-            icon: 'i-lucide-bookmark',
+            icon: 'i-lucide-scroll-text',
             to: '/quests',
             active: route.startsWith('/quests'),
         },
         {
             label: 'Points d\'intérêt',
-            icon: 'i-lucide-compass',
+            icon: 'i-lucide-map-pin',
             to: '/pois',
             active: route.startsWith('/pois'),
         },
         {
-            label: 'Boss / Autres NPCs',
-            icon: 'i-lucide-drama',
+            label: 'NPCs',
+            icon: 'i-lucide-user',
             to: '/npcs',
             active: route.startsWith('/npcs'),
         },
@@ -53,11 +59,16 @@ const items = ref<NavigationMenuItem[][]>([
 ])
 
 watch(() => useRoute().path, (newPath) => {
-    if (!items.value[0]) return;
-    items.value[0].forEach(item => {
-        item.active = newPath.startsWith(item.to as string);
-    });
-});
+    items.value.forEach(group => {
+        group.forEach(item => {
+            if (item.to === '/') {
+                item.active = newPath === '/'
+            } else {
+                item.active = newPath.startsWith(item.to as string)
+            }
+        })
+    })
+})
 
 </script>
 
