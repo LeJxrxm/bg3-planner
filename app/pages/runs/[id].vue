@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Run, Character, Item, CharacterItem, Merchant, Quest, Poi, Npc } from '~~/generated/prisma/client'
+import type { Run, Character, Item, CharacterItem, Merchant, Quest, Poi, Npc, EquipmentSlot } from '~~/generated/prisma/client'
 
 type ItemWithSources = Item & {
     merchant?: Merchant | null
@@ -9,7 +9,7 @@ type ItemWithSources = Item & {
 }
 
 type CharacterWithItems = Pick<Character, 'id' | 'name' | 'classe' | 'subclass' | 'image' | 'createdAt' | 'updatedAt'> & {
-    items: Array<CharacterItem & { item: ItemWithSources }>
+    items: Array<CharacterItem & { item: ItemWithSources, slotId: number }>
 }
 
 type RunWithDetails = Run & {
@@ -33,12 +33,6 @@ const runId = route.params.id as string
 const { data: runData, refresh: refreshRun } = await useFetch<RunWithDetails>(`/api/runs/${runId}`)
 
 const run = computed(() => runData.value)
-const selectedCharacterId = ref<number | null>(runData.value?.runCharacters[0]?.character.id || null)
-const selectedCharacter = computed(() => {
-    if (!selectedCharacterId.value || !run.value) return null
-    const runChar = run.value.runCharacters.find(rc => rc.character.id === selectedCharacterId.value)
-    return runChar?.character || null
-})
 
 // Fetch all available characters
 const { data: allCharactersData, refresh: refreshCharacters } = await useFetch<{ characters: Character[], total: number }>('/api/characters', {
@@ -83,11 +77,6 @@ const removeCharacter = async (characterId: number) => {
             method: 'DELETE'
         })
 
-        // Si c'était le personnage sélectionné, sélectionner le premier disponible
-        if (selectedCharacterId.value === characterId) {
-            selectedCharacterId.value = null
-        }
-
         await refreshRun()
     } catch (error: any) {
         toast.add({
@@ -120,55 +109,21 @@ const { data: itemsData, refresh: refreshItems } = await useFetch<{ items: Item[
     watch: false
 })
 
-const availableItems = computed(() => {
-    if (!itemsData.value?.items || !run.value) return []
-
-    // Récupérer tous les IDs d'items déjà assignés dans cette run
-    const assignedItemIds = new Set<number>()
+// Computed partagé pour les items assignés
+const assignedItemIds = computed(() => {
+    if (!run.value) return new Set<number>()
+    const ids = new Set<number>()
     run.value.runCharacters.forEach(rc => {
         rc.character.items?.forEach(ci => {
-            assignedItemIds.add(ci.item.id)
+            ids.add(ci.item.id)
         })
     })
-
-    // Filtrer les items pour ne garder que ceux qui ne sont pas assignés
-    return itemsData.value.items.filter(item => !assignedItemIds.has(item.id))
+    return ids
 })
 
-const assignItemToCharacter = async (item: Item) => {
-    if (!selectedCharacter.value) {
-        toast.add({
-            title: 'Erreur',
-            description: 'Veuillez sélectionner un personnage',
-            color: 'error'
-        })
-        return
-    }
-
-    try {
-        await $fetch(`/api/runs/${runId}/characters/${selectedCharacter.value.id}/items`, {
-            method: 'POST',
-            body: {
-                itemId: item.id,
-                status: 'TO_GET'
-            }
-        })
-
-        await refreshRun()
-    } catch (error: any) {
-        toast.add({
-            title: 'Erreur',
-            description: error.data?.statusMessage || 'Impossible d\'ajouter l\'item',
-            color: 'error'
-        })
-    }
-}
-
 const removeItemFromCharacter = async (itemId: number) => {
-    if (!selectedCharacter.value) return
-
     try {
-        await $fetch(`/api/runs/${runId}/characters/${selectedCharacter.value.id}/items/${itemId}`, {
+        await $fetch(`/api/runs/${runId}/characters/0/items/${itemId}`, {
             method: 'DELETE'
         })
 
@@ -226,16 +181,7 @@ const tabs = [
 ]
 
 // Equipment slots from DB
-const { data: equipmentSlots } = await useFetch('/api/equipment-slots')
-
-type EquipmentSlot = {
-    id: number
-    key: string
-    label: string
-    itemType: string
-    icon: string
-    order: number
-}
+const { data: equipmentSlots } = await useFetch<EquipmentSlot[]>('/api/equipment-slots')
 
 // Modal state for slot selection
 const showSlotModal = ref(false)
@@ -244,21 +190,14 @@ const selectedSlotCharacter = ref<CharacterWithItems | null>(null)
 
 // Filter items by slot type
 const slotFilteredItems = computed(() => {
-    if (!selectedSlot.value || !itemsData.value?.items || !run.value) return []
+    if (!selectedSlot.value || !itemsData.value?.items) return []
     
     const slotType = selectedSlot.value.itemType
-    
-    // Get assigned item IDs
-    const assignedItemIds = new Set<number>()
-    run.value.runCharacters.forEach(rc => {
-        rc.character.items?.forEach(ci => {
-            assignedItemIds.add(ci.item.id)
-        })
-    })
+    const assigned = assignedItemIds.value
     
     // Filter by slot type and not assigned
     return itemsData.value.items.filter(item => 
-        item.type === slotType && !assignedItemIds.has(item.id)
+        item.type === slotType && !assigned.has(item.id)
     )
 })
 
@@ -293,8 +232,10 @@ const assignItemToSlot = async (item: Item) => {
     }
 }
 
+// Optimized with Map for O(1) lookups
 const getItemForSlot = (character: CharacterWithItems, slotId: number) => {
-    return character.items?.find(ci => ci.slotId === slotId)?.item || null
+    const itemMap = new Map(character.items?.map(ci => [ci.slotId, ci.item]) || [])
+    return itemMap.get(slotId) || null
 }
 
 // Roadmap computation
