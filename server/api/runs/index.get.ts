@@ -5,7 +5,11 @@ export default defineEventHandler(async () => {
   const runs = await prisma.run.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      runCharacters: true
+      runCharacters: {
+        include: {
+          character: true
+        }
+      }
     }
   })
 

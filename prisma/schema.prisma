@@ -95,6 +95,7 @@ model Item {
   image       String?
   description String?
   rarity      Rarity?
+  wikiLink    String?
 
   characterItems CharacterItem[]
 

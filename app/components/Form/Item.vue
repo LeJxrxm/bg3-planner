@@ -8,9 +8,14 @@ const props = defineProps<{
         type: string
         act: number
         sourceType: 'MERCHANT' | 'QUEST' | 'POI'
+        merchantId?: number | null
+        questId?: number | null
+        poiId?: number | null
+        npcId?: number | null
         image?: string | null
         description?: string | null
         rarity?: 'COMMON' | 'UNCOMMON' | 'RARE' | 'VERY_RARE' | 'LEGENDARY' | 'STORY' | null
+        wikiLink?: string | null
     }
 }>()
 
@@ -56,6 +61,10 @@ const schema = z.object({
     type: z.string().min(1, 'Le type est requis'),
     act: z.number().int().min(1).max(3),
     sourceType: z.enum(['MERCHANT', 'QUEST', 'POI']),
+    merchantId: z.number().optional().nullable(),
+    questId: z.number().optional().nullable(),
+    poiId: z.number().optional().nullable(),
+    npcId: z.number().optional().nullable(),
     image: z.union([
         z.string(),
         z.instanceof(File, { message: 'Please select an image file.' })
@@ -89,7 +98,8 @@ const schema = z.object({
             )
     ]).optional().nullable(),
     description: z.string().optional(),
-    rarity: z.enum(['COMMON', 'UNCOMMON', 'RARE', 'VERY_RARE', 'LEGENDARY', 'STORY']).optional()
+    rarity: z.enum(['COMMON', 'UNCOMMON', 'RARE', 'VERY_RARE', 'LEGENDARY', 'STORY']).optional(),
+    wikiLink: z.string().url('Le lien doit être une URL valide').optional().or(z.literal('')).nullable()
 })
 
 type Schema = z.output<typeof schema>
@@ -101,9 +111,14 @@ const state = reactive<Partial<Schema>>({
     type: props.initialData?.type || '',
     act: props.initialData?.act || 1,
     sourceType: props.initialData?.sourceType || 'MERCHANT',
+    merchantId: props.initialData?.merchantId ?? null,
+    questId: props.initialData?.questId ?? null,
+    poiId: props.initialData?.poiId ?? null,
+    npcId: props.initialData?.npcId ?? null,
     image: undefined,
     description: props.initialData?.description || undefined,
-    rarity: props.initialData?.rarity || undefined
+    rarity: props.initialData?.rarity || undefined,
+    wikiLink: props.initialData?.wikiLink || undefined
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -138,6 +153,47 @@ function onFileChange(files: FileList | null) {
     }
 }
 
+// Fetch entities for associations
+const { data: merchantsData } = await useFetch<{ merchants: Array<{ id: number, name: string }>, total: number }>('/api/merchants', {
+    query: { page: 1, itemsPerPage: 100 }
+})
+
+const { data: questsData } = await useFetch<{ quests: Array<{ id: number, name: string }>, total: number }>('/api/quests', {
+    query: { page: 1, itemsPerPage: 100 }
+})
+
+const { data: poisData } = await useFetch<{ pois: Array<{ id: number, name: string }>, total: number }>('/api/pois', {
+    query: { page: 1, itemsPerPage: 100 }
+})
+
+const { data: npcsData } = await useFetch<{ npcs: Array<{ id: number, name: string }>, total: number }>('/api/npcs', {
+    query: { page: 1, itemsPerPage: 100 }
+})
+
+
+
+
+const quests = computed(() => {
+    if (!questsData.value) return []
+    return questsData.value.quests.map(quest => ({ value: quest.id, label: quest.name }))
+})
+
+const merchants = computed(() => {
+    if (!merchantsData.value) return []
+    return merchantsData.value.merchants.map(merchant => ({ value: merchant.id, label: merchant.name }))
+})
+
+const pois = computed(() => {
+    if (!poisData.value) return []
+    return poisData.value.pois.map(poi => ({ value: poi.id, label: poi.name }))
+})
+
+
+const npcs = computed(() => {
+    if (!npcsData.value) return []
+    return npcsData.value.npcs.map(npc => ({ value: npc.id, label: npc.name }))
+})
+
 </script>
 
 <template>
@@ -169,8 +225,39 @@ function onFileChange(files: FileList | null) {
             </UFormField>
         </div>
 
+        <!-- Source Associations -->
+        <div class="border border-hypr-border rounded-lg p-4 space-y-4">
+            <h3 class="text-sm font-semibold text-hypr-text">Associations optionnelles</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <UFormField label="Marchand" name="merchantId">
+                    <USelect class="w-full" v-model="state.merchantId" :items="merchants" option-attribute="name"
+                        value-attribute="id" placeholder="Sélectionner un marchand" />
+                </UFormField>
+
+                <UFormField label="Quête" name="questId">
+                    <USelect class="w-full" v-model="state.questId" :items="quests" option-attribute="name"
+                        value-attribute="id" placeholder="Sélectionner une quête" />
+                </UFormField>
+
+                <UFormField label="Point d'intérêt" name="poiId">
+                    <USelect class="w-full" v-model="state.poiId" :items="pois" option-attribute="name"
+                        value-attribute="id" placeholder="Sélectionner un POI" />
+                </UFormField>
+
+                <UFormField label="PNJ" name="npcId">
+                    <USelect class="w-full" v-model="state.npcId" :items="npcs" option-attribute="name"
+                        value-attribute="id" placeholder="Sélectionner un PNJ" />
+                </UFormField>
+            </div>
+        </div>
+
         <UFormField label="Image" name="image" description="JPG, GIF or PNG. 2MB Max.">
             <UFileUpload v-model="fileState" accept="image/*" class="w-full" />
+        </UFormField>
+
+        <UFormField label="Lien Wiki" name="wikiLink" description="Lien vers la page wiki de l'item">
+            <UInput v-model="state.wikiLink" class="w-full" type="url" placeholder="https://bg3.wiki/..." />
         </UFormField>
 
         <UFormField label="Description" name="description">

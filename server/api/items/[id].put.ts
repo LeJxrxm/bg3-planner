@@ -6,9 +6,14 @@ const updateItemSchema = z.object({
   type: z.string(),
   act: z.number().int().min(1).max(3),
   sourceType: z.enum(['MERCHANT', 'QUEST', 'POI']),
+  merchantId: z.number().optional().nullable(),
+  questId: z.number().optional().nullable(),
+  poiId: z.number().optional().nullable(),
+  npcId: z.number().optional().nullable(),
   image: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  rarity: z.enum(['COMMON', 'UNCOMMON', 'RARE', 'VERY_RARE', 'LEGENDARY', 'STORY']).optional().nullable()
+  rarity: z.enum(['COMMON', 'UNCOMMON', 'RARE', 'VERY_RARE', 'LEGENDARY', 'STORY']).optional().nullable(),
+  wikiLink: z.string().optional().nullable()
 })
 
 export default defineEventHandler(async (event) => {
