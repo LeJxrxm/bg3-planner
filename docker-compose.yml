@@ -22,6 +22,8 @@ services:
       - NODE_ENV=production
       - NUXT_HOST=0.0.0.0
       - NUXT_PORT=3000
+    volumes:
+      - app-uploads:/app/public/uploads
     depends_on:
       - bg3-postgres
     restart: unless-stopped
@@ -29,6 +31,7 @@ services:
       - bg-3-planner
 volumes:
   bg3-postgres-data:
+  app-uploads:
 
 networks:
   bg-3-planner:

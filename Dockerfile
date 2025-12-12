@@ -41,6 +41,12 @@ COPY --from=builder /app/prisma ./prisma
 # Copy built application from builder
 COPY --from=builder /app/.output ./.output
 
+# Copy public directory for static assets
+COPY --from=builder /app/public ./public
+
+# Create uploads directory with proper permissions
+RUN mkdir -p /app/public/uploads && chown -R node:node /app/public/uploads
+
 # Install production dependencies and generate Prisma client
 RUN npm install --production && npx prisma generate
 
@@ -51,6 +57,9 @@ EXPOSE 3000
 ENV NODE_ENV=production
 ENV NUXT_HOST=0.0.0.0
 ENV NUXT_PORT=3000
+
+# Switch to non-root user
+USER node
 
 # Run migrations and start the app
 CMD ["sh", "-c", "npx prisma migrate deploy && node .output/server/index.mjs"]
