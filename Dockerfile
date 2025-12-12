@@ -3,6 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Set build-time environment variable (dummy value for build)
+ARG NUXT_DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy
+ENV NUXT_DATABASE_URL=$NUXT_DATABASE_URL
+
 # Copy package files
 COPY package.json package-lock.json* ./
 
