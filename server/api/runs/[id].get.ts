@@ -22,7 +22,14 @@ export default defineEventHandler(async (event) => {
                                     runId: parseInt(id)
                                 },
                                 include: {
-                                    item: true
+                                    item: {
+                                        include: {
+                                            merchant: true,
+                                            quest: true,
+                                            poi: true,
+                                            npc: true
+                                        }
+                                    }
                                 }
                             }
                         }
