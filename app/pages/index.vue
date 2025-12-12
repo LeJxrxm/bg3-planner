@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const route = useRoute()
+const router = useRouter()
+
 const { data: stats } = await useFetch('/api/dashboard/stats')
 
 const quickActions = [
@@ -17,6 +20,19 @@ const navigation = [
     { label: 'POIs', icon: 'i-lucide-map-pin', to: '/pois', description: 'Points d\'intérêt' },
     { label: 'NPCs', icon: 'i-lucide-user', to: '/npcs', description: 'Personnages non-joueurs' }
 ]
+
+// Initialize search from URL query parameter
+const search = ref((route.query.search as string) || '')
+
+// Watch for search changes and update URL
+watch(search, (newSearch) => {
+    router.push({
+        query: {
+            ...route.query,
+            search: newSearch || undefined
+        }
+    })
+})
 </script>
 
 <template>
@@ -25,7 +41,13 @@ const navigation = [
         <div class="bg-linear-to-r from-hypr-surface to-hypr-overlay border-b border-hypr-border">
             <div class="max-w-7xl mx-auto px-6 py-12">
                 <h1 class="text-4xl font-bold text-hypr-text mb-2">BG3 Planner</h1>
-                <p class="text-hypr-muted text-lg">Planifiez vos runs Baldur's Gate 3</p>
+                <p class="text-hypr-muted text-lg mb-4">Planifiez vos runs Baldur's Gate 3</p>
+                <UInput 
+                    v-model="search" 
+                    placeholder="Rechercher..." 
+                    icon="i-lucide-search"
+                    class="max-w-md"
+                />
             </div>
         </div>
 
