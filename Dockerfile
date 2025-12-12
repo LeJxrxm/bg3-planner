@@ -27,7 +27,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
 
 # Install pnpm and production dependencies only
-RUN npm install -g pnpm && pnpm install --prod --frozen-lockfile
+RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
 
 # Copy Prisma schema and generate client
 COPY --from=builder /app/prisma ./prisma
