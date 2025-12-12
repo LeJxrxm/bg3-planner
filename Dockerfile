@@ -55,7 +55,7 @@ COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/generated ./generated
 
 # Create uploads directory with proper permissions
-RUN mkdir -p /app/.output/public/uploads && chown -R node:node /app
+RUN mkdir -p /app/.output/public/uploads && chown -R node:node /app/.output/public
 
 # Expose port
 EXPOSE 3000
