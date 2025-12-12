@@ -41,7 +41,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             })
         } else {
             // Mode création
-            await $fetch<Run>('/api/runs', {
+            const run: Run = await $fetch<Run>('/api/runs', {
                 method: 'POST',
                 body: event.data,
             })
@@ -51,9 +51,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
                 description: `La run "${event.data.name}" a été créée avec succès.`,
                 color: 'success',
             })
+
+            await navigateTo(`/runs/${run.id}`);
         }
 
-        await navigateTo('/runs')
     } catch (e: any) {
         toast.add({
             title: 'Erreur',
