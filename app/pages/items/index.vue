@@ -12,11 +12,11 @@ interface ItemsResponse {
 }
 
 const { data: items, refresh } = await useFetch<ItemsResponse>('/api/items', {
-    query: computed(() => ({
+    query: {
         page,
         itemsPerPage,
         search
-    })),
+    },
     watch: false
 })
 
