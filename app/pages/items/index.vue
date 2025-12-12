@@ -5,6 +5,7 @@ import type { Item } from '~~/generated/prisma/client'
 const itemsPerPage = ref<number>(12);
 const page = ref<number>(1);
 const search = ref<string>('');
+let isSearching = false;
 
 interface ItemsResponse {
     items: Item[]
@@ -25,13 +26,17 @@ let debounceTimer: NodeJS.Timeout | null = null
 watch(search, () => {
     if (debounceTimer) clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
+        isSearching = true
         page.value = 1 // Reset to first page when searching
         refresh()
+        // Reset the flag after a tick to allow page watcher to see it
+        nextTick(() => { isSearching = false })
     }, 300)
 })
 
-// Watch for page changes
+// Watch for page changes (only refresh if not triggered by search)
 watch(page, () => {
+    if (isSearching) return
     refresh()
 })
 
