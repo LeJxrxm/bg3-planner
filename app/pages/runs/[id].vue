@@ -191,12 +191,12 @@ const selectedSlotCharacter = ref<CharacterWithItems | null>(null)
 // Filter items by slot type
 const slotFilteredItems = computed(() => {
     if (!selectedSlot.value || !itemsData.value?.items) return []
-    
+
     const slotType = selectedSlot.value.itemType
     const assigned = assignedItemIds.value
-    
+
     // Filter by slot type and not assigned
-    return itemsData.value.items.filter(item => 
+    return itemsData.value.items.filter(item =>
         item.type === slotType && !assigned.has(item.id)
     )
 })
@@ -210,7 +210,7 @@ const openSlotModal = (slot: EquipmentSlot, character: CharacterWithItems) => {
 
 const assignItemToSlot = async (item: Item) => {
     if (!selectedSlotCharacter.value || !selectedSlot.value) return
-    
+
     try {
         await $fetch(`/api/runs/${runId}/assign-item`, {
             method: 'POST',
@@ -220,7 +220,7 @@ const assignItemToSlot = async (item: Item) => {
                 slotId: selectedSlot.value.id
             }
         })
-        
+
         showSlotModal.value = false
         await refreshRun()
     } catch (error: any) {
@@ -368,7 +368,8 @@ const getSourceIcon = (sourceType: string) => {
                                     <div v-for="slot in equipmentSlots" :key="slot.id"
                                         @click="openSlotModal(slot, runChar.character)"
                                         class="group cursor-pointer p-2 rounded-lg bg-hypr-bg hover:bg-hypr-overlay hover:border-hypr-accent border border-hypr-border transition-all">
-                                        <div v-if="getItemForSlot(runChar.character, slot.id)" class="flex items-center gap-2">
+                                        <div v-if="getItemForSlot(runChar.character, slot.id)"
+                                            class="flex items-center gap-2">
                                             <div
                                                 class="w-10 h-10 rounded bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
                                                 <NuxtImg v-if="getItemForSlot(runChar.character, slot.id)?.image"
@@ -384,7 +385,8 @@ const getSourceIcon = (sourceType: string) => {
                                                     {{ getItemForSlot(runChar.character, slot.id)!.name }}
                                                 </div>
                                             </div>
-                                            <UButton @click.stop="removeItemFromCharacter(getItemForSlot(runChar.character, slot.id)!.id)"
+                                            <UButton
+                                                @click.stop="removeItemFromCharacter(getItemForSlot(runChar.character, slot.id)!.id)"
                                                 icon="i-lucide-x" size="xs" color="error" variant="ghost"
                                                 class="opacity-0 group-hover:opacity-100 transition-opacity" />
                                         </div>
@@ -409,7 +411,8 @@ const getSourceIcon = (sourceType: string) => {
                             <div class="text-center text-hypr-muted">
                                 <UIcon name="i-lucide-users" class="w-16 h-16 mx-auto mb-4 opacity-50" />
                                 <p class="mb-4">Aucun personnage dans cette run</p>
-                                <UButton @click="showCharacterSelector = true" icon="i-lucide-user-plus" color="primary">
+                                <UButton @click="showCharacterSelector = true" icon="i-lucide-user-plus"
+                                    color="primary">
                                     Ajouter un personnage
                                 </UButton>
                             </div>
@@ -451,7 +454,7 @@ const getSourceIcon = (sourceType: string) => {
                                         <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
                                             class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
                                         <template v-if="roadmapItem.item.wikiLink">
-                                            <NuxtLink :to="roadmapItem.item.wikiLink"
+                                            <NuxtLink :to="roadmapItem.item.wikiLink" target="_blank"
                                                 class="text-hypr-accent hover:underline text-xs">Wiki</NuxtLink>
                                         </template>
                                         <div class="flex items-center gap-2 text-xs text-hypr-muted mb-1">
@@ -467,7 +470,8 @@ const getSourceIcon = (sourceType: string) => {
                                                 <span v-else class="text-xs text-hypr-muted">{{
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
-                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name }}</span>
+                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -586,7 +590,8 @@ const getSourceIcon = (sourceType: string) => {
                             <Item :item="item" :clickable="true" />
                         </div>
                         <div v-if="slotFilteredItems.length === 0" class="col-span-3 py-12 text-center">
-                            <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 text-hypr-muted opacity-50" />
+                            <UIcon name="i-lucide-package-open"
+                                class="w-12 h-12 mx-auto mb-2 text-hypr-muted opacity-50" />
                             <p class="text-hypr-muted">Aucun item disponible pour cet emplacement</p>
                         </div>
                     </div>
