@@ -50,12 +50,6 @@ const assignCharacter = async (character: Pick<Character, 'id' | 'name' | 'class
             }
         })
 
-        toast.add({
-            title: 'Personnage ajouté',
-            description: `${character.name} a été ajouté à l'équipe`,
-            color: 'success'
-        })
-
         showCharacterSelector.value = false
         await refreshRun()
     } catch (error: any) {
@@ -67,9 +61,25 @@ const assignCharacter = async (character: Pick<Character, 'id' | 'name' | 'class
     }
 }
 
-const removeCharacter = (characterId: number) => {
-    // TODO: API call to remove character from run
-    console.log('Removing character from run:', characterId)
+const removeCharacter = async (characterId: number) => {
+    try {
+        await $fetch(`/api/runs/${runId}/characters/${characterId}`, {
+            method: 'DELETE'
+        })
+        
+        // Si c'était le personnage sélectionné, sélectionner le premier disponible
+        if (selectedCharacterId.value === characterId) {
+            selectedCharacterId.value = null
+        }
+        
+        await refreshRun()
+    } catch (error: any) {
+        toast.add({
+            title: 'Erreur',
+            description: error.data?.statusMessage || 'Impossible de retirer le personnage',
+            color: 'error'
+        })
+    }
 }
 
 // Fetch all available items
@@ -101,12 +111,6 @@ const assignItemToCharacter = async (item: Item) => {
             }
         })
 
-        toast.add({
-            title: 'Item ajouté',
-            description: `${item.name} a été ajouté à ${selectedCharacter.value.name}`,
-            color: 'success'
-        })
-
         await refreshRun()
     } catch (error: any) {
         toast.add({
@@ -123,12 +127,6 @@ const removeItemFromCharacter = async (itemId: number) => {
     try {
         await $fetch(`/api/runs/${runId}/characters/${selectedCharacter.value.id}/items/${itemId}`, {
             method: 'DELETE'
-        })
-
-        toast.add({
-            title: 'Item retiré',
-            description: 'L\'item a été retiré du personnage',
-            color: 'success'
         })
 
         await refreshRun()
@@ -170,8 +168,8 @@ const getRarityColor = (rarity: string) => {
             <div class="w-80 shrink-0 space-y-3">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-semibold text-hypr-text">Party</h2>
-                    <UButton @click="showCharacterSelector = true" icon="i-lucide-user-plus" size="xs"
-                        variant="outline" />
+                    <UButton v-if="(run?.runCharacters?.length || 0) < 4" @click="showCharacterSelector = true"
+                        icon="i-lucide-user-plus" size="xs" variant="outline" />
                 </div>
 
                 <div v-for="runChar in run?.runCharacters" :key="runChar.character.id"
@@ -253,7 +251,7 @@ const getRarityColor = (rarity: string) => {
                             <div class="text-right">
                                 <div class="text-sm text-hypr-muted mb-1">Items équipés</div>
                                 <div class="text-3xl font-bold text-hypr-accent">{{ selectedCharacter.items?.length || 0
-                                    }} / 12</div>
+                                }} / 12</div>
                             </div>
                         </div>
                     </UCard>
