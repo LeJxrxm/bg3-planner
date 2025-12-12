@@ -2,7 +2,8 @@
 @import "@nuxt/ui";
 
 @theme {
-    --color-common: #FFA03C;
+    /* BG3 Item Rarity Colors (keep original) */
+    --color-common: #aaa;
     --color-uncommon: #01bd39;
     --color-rare: #01bfff;
     --color-very-rare: #d1017b;
@@ -16,31 +17,82 @@
     --ui-legendary: var(--color-legendary);
     --ui-story: var(--color-story);
 
-    /* Baldur's Gate 3 Inspired Colors */
-    --color-bg3-dark: #1b1b1b;
-    --color-bg3-panel: #1a1815;
-    --color-bg3-border: #4a4238;
-    --color-bg3-gold: #c8a45c;
-    --color-bg3-gold-hover: #e6c67e;
-    --color-bg3-text: #dcdcdc;
-    --color-bg3-text-muted: #9a9a9a;
-    --color-bg3-red: #8a2be2; /* Using a mystical purple/red vibe or standard dark red #700000 */
+    /* Hyprland Inspired Theme */
+    --color-hypr-bg: #1e1e2e;
+    --color-hypr-surface: #282a36;
+    --color-hypr-overlay: #313244;
+    --color-hypr-border: #45475a;
+    
+    --color-hypr-cyan: #89dceb;
+    --color-hypr-blue: #89b4fa;
+    --color-hypr-sky: #74c7ec;
+    --color-hypr-teal: #94e2d5;
+    --color-hypr-green: #a6e3a1;
+    --color-hypr-yellow: #f9e2af;
+    --color-hypr-peach: #fab387;
+    --color-hypr-pink: #f5c2e7;
+    --color-hypr-mauve: #cba6f7;
+    --color-hypr-lavender: #b4befe;
+    
+    --color-hypr-text: #cdd6f4;
+    --color-hypr-subtext: #bac2de;
+    --color-hypr-muted: #a6adc8;
+    --color-hypr-dim: #7f849c;
+    
+    --color-hypr-accent: #89b4fa;
+    --color-hypr-accent-bright: #b4befe;
 
-
-    --ui-primary: var(--color-bg3-gold);
-    --ui-bg: var(--color-bg3-dark);
+    --ui-primary: var(--color-hypr-accent);
+    --ui-bg: var(--color-hypr-bg);
 }
 
 :root {
-    --ui-bg: var(--color-gray-950);
-    --ui-bg-elevated: var(--color-gray-900);
-    --ui-border: var(--color-gray-700);
-    --ui-text: var(--color-bg3-text);
-    --ui-text-muted: var(--color-bg3-text-muted);
+    --ui-bg: var(--color-hypr-bg);
+    --ui-bg-elevated: var(--color-hypr-surface);
+    --ui-bg-inverted: var(--color-hypr-text);
+    --ui-border: var(--color-hypr-border);
+    --ui-border-accented: var(--color-hypr-overlay);
+    --ui-text: var(--color-hypr-text);
+    --ui-text-highlighted: var(--color-hypr-accent-bright);
+    --ui-text-muted: var(--color-hypr-muted);
+    --ui-text-dimmed: var(--color-hypr-dim);
 }
 
 .dark {
-    --ui-bg: var(--color-gray-950);
-    --ui-bg-elevated: var(--color-gray-900);
-    --ui-border: var(--color-gray-700);
+    --ui-bg: var(--color-hypr-bg);
+    --ui-bg-elevated: var(--color-hypr-surface);
+    --ui-border: var(--color-hypr-border);
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-hypr-bg);
+    border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-hypr-border);
+    border-radius: 6px;
+    border: 2px solid var(--color-hypr-bg);
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-hypr-overlay);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--color-hypr-accent);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-hypr-border) var(--color-hypr-bg);
+}
+

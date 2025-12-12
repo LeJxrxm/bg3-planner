@@ -63,9 +63,7 @@ watch(() => useRoute().path, (newPath) => {
 
 <template>
     <div class="flex h-screen w-full overflow-hidden">
-        <aside
-            class="flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all duration-300"
-            :class="[isOpen ? 'w-64' : 'w-16']">
+        <aside class="flex flex-col border-r transition-all duration-300" :class="[isOpen ? 'w-64' : 'w-16']">
             <div class="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-800"
                 :class="[isOpen ? 'justify-between' : 'justify-center']">
                 <h1 v-if="isOpen" class="font-bold text-xl truncate">BG3 Planner</h1>
@@ -79,7 +77,8 @@ watch(() => useRoute().path, (newPath) => {
 
         </aside>
 
-        <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <main
+            class="flex-1 flex flex-col min-w-0 overflow-hidden bg-linear-to-br from-primary/20 to-story/10 via-transparent">
             <div class="flex-1 overflow-y-auto py-4 px-4 md:px-8">
                 <slot />
             </div>

@@ -37,11 +37,11 @@ model Run {
   name        String
   description String?
 
-  characters Character[]
-
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now()) @updatedAt
+  runCharacters  RunCharacter[]
   characterItems CharacterItem[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Character {
@@ -51,12 +51,25 @@ model Character {
   subclass String?
   image    String?
 
-  run   Run @relation(fields: [runId], references: [id], onDelete: Cascade)
-  runId Int
-
+  runs      RunCharacter[]
   items     CharacterItem[]
   createdAt DateTime        @default(now())
   updatedAt DateTime        @default(now()) @updatedAt
+}
+
+// Table de liaison entre Run et Character
+model RunCharacter {
+  id Int @id @default(autoincrement())
+
+  run         Run       @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runId       Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([runId, characterId], name: "uniq_character_per_run")
 }
 
 model Item {

@@ -1,29 +1,23 @@
 import { prisma } from "~~/server/utils/prisma"
 
 export default defineEventHandler(async (event) => {
-    const total = await prisma.item.count();
+    const total = await prisma.character.count();
 
-    console.log(event);
-
-    // Get query parameters for pagination
     const query = getQuery(event);
-
     const itemsPerPage = parseInt(query.itemsPerPage as string) || 20;
     const page = parseInt((query.page as string) || '1', 10);
     const skip = (page - 1) * itemsPerPage;
 
-    const items = await prisma.item.findMany({
+    const characters = await prisma.character.findMany({
         orderBy: {
             name: 'asc'
         },
         skip: skip,
-        take: itemsPerPage
+        take: itemsPerPage,
     })
 
-    const res = {
-        items,
+    return {
+        characters,
         total
     }
-
-    return res
 })

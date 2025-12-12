@@ -56,7 +56,7 @@ function getRarityColor(rarity: string | null) {
             </UButton>
         </div>
 
-        <div v-if="items?.items.length" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div v-if="items?.items.length" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <NuxtLink v-for="item in items.items" :key="item.id" :to="`/items/${item.id}`">
                 <Item :item="item" />
             </NuxtLink>

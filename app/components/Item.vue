@@ -34,12 +34,15 @@ const props = defineProps<{
     ]">
         <div class="grid grid-cols-2 lg:grid-cols-6">
             <div class="lg:col-span-2">
-                <div class="text-lg" :class="item.rarity && item.rarity in textColors ? textColors[item.rarity as Rarity] : ''">{{ item.name }}</div>
+                <div class="text-lg"
+                    :class="item.rarity && item.rarity in textColors ? textColors[item.rarity as Rarity] : ''">{{
+                        item.name }}</div>
                 <div class="text-xs">{{ item.rarity }}</div>
             </div>
             <div class="lg:col-span-4 flex items-center justify-end">
-                <NuxtImg :src="item.image || '/images/Birthright_hat.webp'" alt="Item Image" sizes="100"
-                    class="rounded-xl object-contain z-40 bg-clip-content" format="png" />
+                <NuxtImg :src="item.image || '/images/Birthright_hat.webp'" quality="100" :title="item.name"
+                    :alt="item.name" width="100" height="100" class="rounded-xl object-contain z-40 bg-clip-content"
+                    format="png" />
             </div>
         </div>
         <USeparator :color="'warning'" class="my-5" />

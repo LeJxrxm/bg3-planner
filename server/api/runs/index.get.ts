@@ -5,8 +5,8 @@ export default defineEventHandler(async () => {
   const runs = await prisma.run.findMany({
     orderBy: { createdAt: 'desc' },
     include: {
-      characters: true,
-    },
+      runCharacters: true
+    }
   })
 
   return runs
