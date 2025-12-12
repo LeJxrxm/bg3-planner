@@ -5,6 +5,8 @@ import type { Item } from '~~/generated/prisma/client'
 const itemsPerPage = ref<number>(12);
 const page = ref<number>(1);
 const search = ref<string>('');
+// Flag to prevent duplicate refresh when search resets page
+// Plain variable is sufficient as watchers run synchronously in JS single-threaded execution
 let isSearching = false;
 
 interface ItemsResponse {
