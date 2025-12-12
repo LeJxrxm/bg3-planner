@@ -29,8 +29,7 @@ watch(search, () => {
         isSearching = true
         page.value = 1 // Reset to first page when searching
         refresh()
-        // Reset the flag after a tick to allow page watcher to see it
-        nextTick(() => { isSearching = false })
+        isSearching = false
     }, 300)
 })
 
