@@ -421,24 +421,24 @@ const getSourceIcon = (sourceType: string) => {
             <!-- Roadmap Tab -->
             <template #roadmap>
                 <div class="mt-10 space-y-8">
-                    <!-- Act 1 -->
-                    <div>
+                    <!-- Acts Loop -->
+                    <div v-for="act in [1, 2, 3]" :key="act">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="w-12 h-12 rounded-full bg-hypr-accent flex items-center justify-center">
-                                <span class="text-xl font-bold text-white">1</span>
+                                <span class="text-xl font-bold text-white">{{ act }}</span>
                             </div>
                             <div>
-                                <h3 class="text-2xl font-bold text-hypr-text">Acte 1</h3>
-                                <p class="text-sm text-hypr-muted">{{ roadmapByAct[1]?.length || 0 }} item(s)</p>
+                                <h3 class="text-2xl font-bold text-hypr-text">Acte {{ act }}</h3>
+                                <p class="text-sm text-hypr-muted">{{ roadmapByAct[act]?.length || 0 }} item(s)</p>
                             </div>
                         </div>
-                        <div v-if="(roadmapByAct[1]?.length || 0) === 0"
+                        <div v-if="(roadmapByAct[act]?.length || 0) === 0"
                             class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
                             <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 opacity-50" />
                             <p>Aucun item pour cet acte</p>
                         </div>
                         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[1]" :key="idx"
+                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[act]" :key="idx"
                                 class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
                                 <div class="flex gap-4">
                                     <div
@@ -449,63 +449,11 @@ const getSourceIcon = (sourceType: string) => {
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
-                                            class="font-semibold truncate">{{ roadmapItem.item.name }}
-                                        </div>
+                                            class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
                                         <template v-if="roadmapItem.item.wikiLink">
                                             <NuxtLink :to="roadmapItem.item.wikiLink"
                                                 class="text-hypr-accent hover:underline text-xs">Wiki</NuxtLink>
                                         </template>
-                                        <div class="flex items-center gap-2 text-xs text-hypr-muted my-1">
-                                            <UIcon :name="getSourceIcon(roadmapItem.sourceType)" class="w-3 h-3" />
-                                            <span class="truncate">{{ roadmapItem.sourceName }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <NuxtImg v-if="roadmapItem.character.image"
-                                                    :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
-                                                    class="w-full h-full object-cover" />
-                                                <span v-else class="text-xs text-hypr-muted">{{
-                                                    roadmapItem.character.name[0] }}</span>
-                                            </div>
-                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                            }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </UCard>
-                        </div>
-                    </div>
-
-                    <!-- Act 2 -->
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-12 h-12 rounded-full bg-hypr-accent flex items-center justify-center">
-                                <span class="text-xl font-bold text-white">2</span>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-hypr-text">Acte 2</h3>
-                                <p class="text-sm text-hypr-muted">{{ roadmapByAct[2]?.length || 0 }} item(s)</p>
-                            </div>
-                        </div>
-                        <div v-if="(roadmapByAct[2]?.length || 0) === 0"
-                            class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
-                            <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 opacity-50" />
-                            <p>Aucun item pour cet acte</p>
-                        </div>
-                        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[2]" :key="idx"
-                                class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
-                                <div class="flex gap-4">
-                                    <div
-                                        class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <NuxtImg v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
-                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover" />
-                                        <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
-                                            class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
                                         <div class="flex items-center gap-2 text-xs text-hypr-muted mb-1">
                                             <UIcon :name="getSourceIcon(roadmapItem.sourceType)" class="w-3 h-3" />
                                             <span class="truncate">{{ roadmapItem.sourceName }}</span>
@@ -519,59 +467,7 @@ const getSourceIcon = (sourceType: string) => {
                                                 <span v-else class="text-xs text-hypr-muted">{{
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
-                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                            }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </UCard>
-                        </div>
-                    </div>
-
-                    <!-- Act 3 -->
-                    <div>
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-12 h-12 rounded-full bg-hypr-accent flex items-center justify-center">
-                                <span class="text-xl font-bold text-white">3</span>
-                            </div>
-                            <div>
-                                <h3 class="text-2xl font-bold text-hypr-text">Acte 3</h3>
-                                <p class="text-sm text-hypr-muted">{{ roadmapByAct[3]?.length || 0 }} item(s)</p>
-                            </div>
-                        </div>
-                        <div v-if="(roadmapByAct[3]?.length || 0) === 0"
-                            class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
-                            <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 opacity-50" />
-                            <p>Aucun item pour cet acte</p>
-                        </div>
-                        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[3]" :key="idx"
-                                class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
-                                <div class="flex gap-4">
-                                    <div
-                                        class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <NuxtImg v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
-                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover" />
-                                        <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
-                                            class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
-                                        <div class="flex items-center gap-2 text-xs text-hypr-muted mb-1">
-                                            <UIcon :name="getSourceIcon(roadmapItem.sourceType)" class="w-3 h-3" />
-                                            <span class="truncate">{{ roadmapItem.sourceName }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <div
-                                                class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <NuxtImg v-if="roadmapItem.character.image"
-                                                    :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
-                                                    class="w-full h-full object-cover" />
-                                                <span v-else class="text-xs text-hypr-muted">{{
-                                                    roadmapItem.character.name[0] }}</span>
-                                            </div>
-                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                            }}</span>
+                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name }}</span>
                                         </div>
                                     </div>
                                 </div>
