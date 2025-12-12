@@ -28,11 +28,12 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Set runtime environment variable requirement
+ARG NUXT_DATABASE_URL
+ENV NUXT_DATABASE_URL=$NUXT_DATABASE_URL
+
 # Copy package files
 COPY package.json package-lock.json* prisma.config.ts ./
-
-# Install production dependencies
-RUN npm install --production
 
 # Copy Prisma schema and migrations
 COPY --from=builder /app/prisma ./prisma
@@ -40,9 +41,8 @@ COPY --from=builder /app/prisma ./prisma
 # Copy built application from builder
 COPY --from=builder /app/.output ./.output
 
-# Copy generated Prisma client
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# Install production dependencies and generate Prisma client
+RUN npm install --production && npx prisma generate
 
 # Expose port
 EXPOSE 3000
