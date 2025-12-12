@@ -8,7 +8,7 @@ ARG NUXT_DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy
 ENV NUXT_DATABASE_URL=$NUXT_DATABASE_URL
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* prisma.config.ts ./
 
 # Install pnpm and dependencies
 #RUN npm install -g pnpm && pnpm install --frozen-lockfile
@@ -29,7 +29,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* prisma.config.ts ./
 
 # Install pnpm and production dependencies only
 #RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
