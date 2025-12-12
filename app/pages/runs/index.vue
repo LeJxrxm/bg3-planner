@@ -124,9 +124,9 @@ const deleteRun = async () => {
                                     class="relative">
                                     <div
                                         class="w-12 h-12 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden border-2 border-hypr-border">
-                                        <img v-if="runChar.character.image" :src="runChar.character.image"
+                                        <NuxtImg v-if="runChar.character.image" :src="runChar.character.image"
                                             :alt="runChar.character.name" :title="runChar.character.name"
-                                            class="w-full h-full object-cover">
+                                            class="w-full h-full object-cover" />
                                         <span v-else class="text-lg text-hypr-muted" :title="runChar.character.name">
                                             {{ runChar.character.name[0] }}
                                         </span>

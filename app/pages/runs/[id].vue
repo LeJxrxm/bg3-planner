@@ -332,8 +332,8 @@ const getSourceIcon = (sourceType: string) => {
                                     <div class="relative">
                                         <div
                                             class="w-16 h-16 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                            <img v-if="runChar.character.image" :src="runChar.character.image"
-                                                :alt="runChar.character.name" class="w-full h-full object-cover">
+                                            <NuxtImg v-if="runChar.character.image" :src="runChar.character.image"
+                                                :alt="runChar.character.name" class="w-full h-full object-cover" />
                                             <span v-else class="text-2xl text-hypr-muted">
                                                 {{ runChar.character.name[0] }}
                                             </span>
@@ -367,8 +367,8 @@ const getSourceIcon = (sourceType: string) => {
                                 <div class="flex items-center gap-6">
                                     <div
                                         class="w-24 h-24 rounded-lg bg-hypr-bg flex items-center justify-center overflow-hidden">
-                                        <img v-if="selectedCharacter.image" :src="selectedCharacter.image"
-                                            :alt="selectedCharacter.name" class="w-full h-full object-cover">
+                                        <NuxtImg v-if="selectedCharacter.image" :src="selectedCharacter.image"
+                                            :alt="selectedCharacter.name" class="w-full h-full object-cover" />
                                         <span v-else class="text-4xl text-hypr-muted">
                                             {{ selectedCharacter.name[0] }}
                                         </span>
@@ -481,9 +481,9 @@ const getSourceIcon = (sourceType: string) => {
                                         <div class="flex items-center gap-2">
                                             <div
                                                 class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <img v-if="roadmapItem.character.image"
+                                                <NuxtImg v-if="roadmapItem.character.image"
                                                     :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
-                                                    class="w-full h-full object-cover">
+                                                    class="w-full h-full object-cover" />
                                                 <span v-else class="text-xs text-hypr-muted">{{
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
@@ -518,8 +518,8 @@ const getSourceIcon = (sourceType: string) => {
                                 <div class="flex gap-4">
                                     <div
                                         class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
-                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover">
+                                        <NuxtImg v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
+                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover" />
                                         <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
                                     </div>
                                     <div class="flex-1 min-w-0">
@@ -532,9 +532,9 @@ const getSourceIcon = (sourceType: string) => {
                                         <div class="flex items-center gap-2">
                                             <div
                                                 class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <img v-if="roadmapItem.character.image"
+                                                <NuxtImg v-if="roadmapItem.character.image"
                                                     :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
-                                                    class="w-full h-full object-cover">
+                                                    class="w-full h-full object-cover" />
                                                 <span v-else class="text-xs text-hypr-muted">{{
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
@@ -569,8 +569,8 @@ const getSourceIcon = (sourceType: string) => {
                                 <div class="flex gap-4">
                                     <div
                                         class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
-                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover">
+                                        <NuxtImg v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
+                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover" />
                                         <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
                                     </div>
                                     <div class="flex-1 min-w-0">
@@ -583,9 +583,9 @@ const getSourceIcon = (sourceType: string) => {
                                         <div class="flex items-center gap-2">
                                             <div
                                                 class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <img v-if="roadmapItem.character.image"
+                                                <NuxtImg v-if="roadmapItem.character.image"
                                                     :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
-                                                    class="w-full h-full object-cover">
+                                                    class="w-full h-full object-cover" />
                                                 <span v-else class="text-xs text-hypr-muted">{{
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
@@ -629,8 +629,8 @@ const getSourceIcon = (sourceType: string) => {
                             <div class="flex items-center gap-3">
                                 <div
                                     class="w-12 h-12 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                    <img v-if="character.image" :src="character.image" :alt="character.name"
-                                        class="w-full h-full object-cover">
+                                    <NuxtImg v-if="character.image" :src="character.image" :alt="character.name"
+                                        class="w-full h-full object-cover" />
                                     <span v-else class="text-xl text-hypr-muted">
                                         {{ character.name[0] }}
                                     </span>
