@@ -28,8 +28,11 @@ watch(search, () => {
     debounceTimer = setTimeout(async () => {
         isSearching = true
         page.value = 1 // Reset to first page when searching
-        await refresh()
-        isSearching = false
+        try {
+            await refresh()
+        } finally {
+            isSearching = false
+        }
     }, 300)
 })
 
