@@ -32,9 +32,7 @@ const emit = defineEmits<{
 
 <template>
 
-    <UCard 
-        @click="clickable ? emit('click', item) : undefined"
-        :class="[
+    <UCard @click="clickable ? emit('click', item) : undefined" :class="[
         `h-full border transition ease-in duration-100 rounded bg-linear-to-b from-2% to-transparent via-transparent w-full z-10 p-4 space-y-1 my-2 relative overflow-visible`,
         item.rarity && item.rarity in colors ? colors[item.rarity as Rarity] : '',
         'hover:scale-[1.02]',
@@ -48,13 +46,13 @@ const emit = defineEmits<{
                 <div class="text-xs">{{ item.rarity }}</div>
             </div>
             <div class="lg:col-span-4 flex items-center justify-end">
-                <NuxtImg :src="item.image || '/images/Birthright_hat.webp'" quality="100" :title="item.name"
-                    :alt="item.name" width="100" height="100" class="rounded-xl object-contain z-40 bg-clip-content"
-                    format="png" />
+                <NuxtImg v-if="item.image" :src="item.image" quality="100" :title="item.name" :alt="item.name"
+                    width="80" height="80" class="rounded-xl object-contain z-40 bg-clip-content" format="webp" />
+                <UIcon v-else name="i-lucide-box" class="w-20 h-20 text-gray-400" />
             </div>
         </div>
         <USeparator :color="'warning'" class="my-5" />
-        <p v-if="item.description">
+        <p v-if="item.description" class="text-sm">
             {{ item.description }}
         </p>
     </UCard>
