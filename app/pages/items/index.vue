@@ -13,9 +13,9 @@ interface ItemsResponse {
 
 const { data: items, refresh } = await useFetch<ItemsResponse>('/api/items', {
     query: computed(() => ({
-        page: page.value,
-        itemsPerPage: itemsPerPage.value,
-        search: search.value || undefined
+        page,
+        itemsPerPage,
+        search
     })),
     watch: false
 })
