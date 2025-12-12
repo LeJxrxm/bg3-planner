@@ -2,7 +2,7 @@
 import type { Item } from '~~/generated/prisma/client'
 
 
-const itemsPerPage = ref<number>(20);
+const itemsPerPage = ref<number>(12);
 const page = ref<number>(1);
 const search = ref<string>('');
 
