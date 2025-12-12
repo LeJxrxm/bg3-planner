@@ -20,6 +20,7 @@ ENV NUXT_DATABASE_URL=$NUXT_DATABASE_URL
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/prisma.config.ts ./
 
 # Copy application files
 COPY . .
@@ -48,6 +49,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.output ./.output
 COPY --from=builder /app/generated ./generated
+COPY --from=builder /app/prisma.config.ts ./
 
 # Create uploads directory with proper permissions
 RUN mkdir -p /app/.output/public/uploads && chown -R node:node /app
