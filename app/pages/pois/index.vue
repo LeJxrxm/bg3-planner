@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import type { Quest } from '~~/generated/prisma/client'
+import type { Poi } from '~~/generated/prisma/client'
 
 const UButton = resolveComponent('UButton');
 
-const columns: Array<TableColumn<Quest>> = [
+const columns: Array<TableColumn<Poi>> = [
     {
         accessorKey: 'name',
-        header: 'Quête',
+        header: 'Point d\'intérêt',
     },
     {
         accessorKey: 'actions',
@@ -15,14 +15,14 @@ const columns: Array<TableColumn<Quest>> = [
         cell: ({ row }) => {
             return h('div', { class: 'flex gap-2' }, [
                 h(UButton, {
-                    to: `/quests/${row.original.id}`,
+                    to: `/pois/${row.original.id}`,
                     icon: 'i-heroicons-pencil-square',
                     color: 'neutral',
                     variant: 'ghost',
                     size: 'xs'
                 }),
                 h(UButton, {
-                    onClick: () => deleteQuest(row.original.id),
+                    onClick: () => deletePoi(row.original.id),
                     icon: 'i-heroicons-trash',
                     color: 'error',
                     variant: 'ghost',
@@ -36,17 +36,17 @@ const columns: Array<TableColumn<Quest>> = [
 
 const page = ref(1)
 
-const { data, refresh } = await useFetch<{ quests: Quest[], total: number }>('/api/quests', {
+const { data, refresh } = await useFetch<{ pois: Poi[], total: number }>('/api/pois', {
     query: {
         page
     }
 })
 
-async function deleteQuest(id: number) {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette quête ?')) return
+async function deletePoi(id: number) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce point d\'intérêt ?')) return
 
     try {
-        await $fetch(`/api/quests/${id}`, {
+        await $fetch(`/api/pois/${id}`, {
             method: 'DELETE'
         })
         refresh()
@@ -60,14 +60,14 @@ async function deleteQuest(id: number) {
 <template>
     <div class="space-y-4">
         <div class="flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Quêtes</h1>
-            <UButton to="/quests/add" icon="i-heroicons-plus" color="primary">
-                Ajouter une quête
+            <h1 class="text-2xl font-bold">Points d'intérêt</h1>
+            <UButton to="/pois/add" icon="i-heroicons-plus" color="primary">
+                Ajouter un POI
             </UButton>
         </div>
 
         <UCard>
-            <UTable :data="data?.quests || []" :columns="columns" />
+            <UTable :data="data?.pois || []" :columns="columns" />
             <UPagination v-model:page="page" :total="data?.total || 0" :items-per-page="20" />
         </UCard>
     </div>

@@ -16,9 +16,9 @@ async function onSubmit(data: any) {
         toast.add({
             title: 'Succès',
             description: 'L\'item a été modifié avec succès',
-            color: 'green'
+            color: 'success'
         })
-
+        
         router.push('/items')
     } catch (error) {
         console.error('Erreur lors de la modification', error)
@@ -33,12 +33,10 @@ async function onSubmit(data: any) {
 
 <template>
     <div class="mx-auto space-y-4">
-        <div class="flex items-center gap-4">
-            <UButton to="/items" icon="i-heroicons-arrow-left" color="gray" variant="ghost" />
-            <h1 class="text-2xl font-bold">Modifier l'item</h1>
-        </div>
-
-        <UCard v-if="!pending && item">
+    <div class="flex items-center gap-4">
+      <UButton to="/items" icon="i-heroicons-arrow-left" color="neutral" variant="ghost" />
+      <h1 class="text-2xl font-bold">Modifier l'item</h1>
+    </div>        <UCard v-if="!pending && item">
             <FormItem :initial-data="item" @submit="onSubmit" />
         </UCard>
         <div v-else-if="pending" class="flex justify-center py-8">

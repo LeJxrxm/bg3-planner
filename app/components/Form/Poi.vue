@@ -5,31 +5,15 @@ import type { FormSubmitEvent } from '#ui/types'
 const props = defineProps<{
     initialData?: {
         name: string
-        type: string
         act: number
-        sourceType: 'MERCHANT' | 'QUEST' | 'POI'
+        pos_x?: number | null
+        pos_y?: number | null
+        wikiLink?: string | null
         image?: string | null
-        description?: string | null
-        rarity?: 'COMMON' | 'UNCOMMON' | 'RARE' | 'VERY_RARE' | 'LEGENDARY' | 'STORY' | null
     }
 }>()
 
 const emit = defineEmits(['submit'])
-
-const rarities = [
-    { label: 'Common', value: 'COMMON' },
-    { label: 'Uncommon', value: 'UNCOMMON' },
-    { label: 'Rare', value: 'RARE' },
-    { label: 'Very Rare', value: 'VERY_RARE' },
-    { label: 'Legendary', value: 'LEGENDARY' },
-    { label: 'Story', value: 'STORY' }
-]
-
-const sourceTypes = [
-    { label: 'Merchant', value: 'MERCHANT' },
-    { label: 'Quest', value: 'QUEST' },
-    { label: 'POI', value: 'POI' }
-]
 
 const acts = [
     { label: 'Act 1', value: 1 },
@@ -53,9 +37,10 @@ const formatBytes = (bytes: number, decimals = 2) => {
 
 const schema = z.object({
     name: z.string().min(1, 'Le nom est requis'),
-    type: z.string().min(1, 'Le type est requis'),
     act: z.number().int().min(1).max(3),
-    sourceType: z.enum(['MERCHANT', 'QUEST', 'POI']),
+    pos_x: z.number().int().optional().nullable(),
+    pos_y: z.number().int().optional().nullable(),
+    wikiLink: z.string().optional().nullable(),
     image: z.union([
         z.string(),
         z.instanceof(File, { message: 'Please select an image file.' })
@@ -87,9 +72,7 @@ const schema = z.object({
                     message: `The image dimensions are invalid. Please upload an image between ${MIN_DIMENSIONS.width}x${MIN_DIMENSIONS.height} and ${MAX_DIMENSIONS.width}x${MAX_DIMENSIONS.height} pixels.`
                 }
             )
-    ]).optional().nullable(),
-    description: z.string().optional(),
-    rarity: z.enum(['COMMON', 'UNCOMMON', 'RARE', 'VERY_RARE', 'LEGENDARY', 'STORY']).optional()
+    ]).optional().nullable()
 })
 
 type Schema = z.output<typeof schema>
@@ -97,13 +80,12 @@ type Schema = z.output<typeof schema>
 const fileState = ref<File | null>(null)
 
 const state = reactive<Partial<Schema>>({
-    name: props.initialData?.name || '',
-    type: props.initialData?.type || '',
-    act: props.initialData?.act || 1,
-    sourceType: props.initialData?.sourceType || 'MERCHANT',
-    image: undefined,
-    description: props.initialData?.description || undefined,
-    rarity: props.initialData?.rarity || undefined
+  name: props.initialData?.name || '',
+  act: props.initialData?.act || 1,
+  pos_x: props.initialData?.pos_x || undefined,
+  pos_y: props.initialData?.pos_y || undefined,
+  wikiLink: props.initialData?.wikiLink || undefined,
+  image: undefined
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -131,50 +113,34 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     emit('submit', data)
 }
-
-function onFileChange(files: FileList | null) {
-    if (files && files.length > 0) {
-        state.image = files[0]
-    }
-}
-
 </script>
 
 <template>
     <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
         <UFormField label="Nom" name="name" required>
-            <UInput class="w-full" v-model="state.name" placeholder="Nom de l'item" />
+            <UInput class="w-full" v-model="state.name" placeholder="Nom du point d'intérêt" />
         </UFormField>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <UFormField label="Type" name="type" required>
-                <UInput class="w-full" v-model="state.type" placeholder="Ex: Arme, Armure, Anneau..." />
-            </UFormField>
+        <UFormField label="Acte" name="act" required>
+            <USelect class="w-full" v-model="state.act" :items="acts" option-attribute="label"
+                value-attribute="value" />
+        </UFormField>
 
-            <UFormField label="Rareté" name="rarity">
-                <USelect class="w-full" v-model="state.rarity" :items="rarities" option-attribute="label"
-                    value-attribute="value" placeholder="Sélectionner une rareté" />
+        <div class="grid grid-cols-2 gap-4">
+            <UFormField label="Position X" name="pos_x">
+                <UInput class="w-full" v-model.number="state.pos_x" type="number" />
+            </UFormField>
+            <UFormField label="Position Y" name="pos_y">
+                <UInput class="w-full" v-model.number="state.pos_y" type="number" />
             </UFormField>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <UFormField label="Acte" name="act" required>
-                <USelect class="w-full" v-model="state.act" :items="acts" option-attribute="label"
-                    value-attribute="value" />
-            </UFormField>
-
-            <UFormField label="Source" name="sourceType" required>
-                <USelect class="w-full" v-model="state.sourceType" :items="sourceTypes" option-attribute="label"
-                    value-attribute="value" />
-            </UFormField>
-        </div>
+        <UFormField label="Lien Wiki" name="wikiLink">
+            <UInput class="w-full" v-model="state.wikiLink" placeholder="https://bg3.wiki/..." />
+        </UFormField>
 
         <UFormField label="Image" name="image" description="JPG, GIF or PNG. 2MB Max.">
             <UFileUpload v-model="fileState" accept="image/*" class="w-full" />
-        </UFormField>
-
-        <UFormField label="Description" name="description">
-            <UTextarea v-model="state.description" class="w-full" :rows="7" placeholder="Description de l'item..." />
         </UFormField>
 
         <div class="flex justify-end">

@@ -12,7 +12,7 @@ async function onSubmit(data: any) {
         toast.add({
             title: 'Succès',
             description: 'L\'item a été créé avec succès',
-            color: 'green'
+            color: 'success'
         })
 
         router.push('/items')
@@ -21,7 +21,7 @@ async function onSubmit(data: any) {
         toast.add({
             title: 'Erreur',
             description: 'Une erreur est survenue lors de la création de l\'item',
-            color: 'red'
+            color: 'error'
         })
     }
 }
@@ -29,12 +29,10 @@ async function onSubmit(data: any) {
 
 <template>
     <div class="mx-auto space-y-4">
-        <div class="flex items-center gap-4">
-            <UButton to="/items" icon="i-heroicons-arrow-left" color="gray" variant="ghost" />
-            <h1 class="text-2xl font-bold">Ajouter un item</h1>
-        </div>
-
-        <UCard>
+    <div class="flex items-center gap-4">
+      <UButton to="/items" icon="i-heroicons-arrow-left" color="neutral" variant="ghost" />
+      <h1 class="text-2xl font-bold">Ajouter un item</h1>
+    </div>        <UCard>
             <FormItem @submit="onSubmit" />
         </UCard>
     </div>
