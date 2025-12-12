@@ -26,6 +26,20 @@ enum ItemStatus {
   OBTAINED // récupéré
 }
 
+enum ItemType {
+  AMULET
+  ARMOR
+  CLOAK
+  BOOTS
+  GLOVES
+  HELMET
+  RING
+  WEAPON
+  OFFHAND
+  RANGED_WEAPON
+  INSTRUMENT
+}
+
 enum SourceType {
   MERCHANT
   QUEST
@@ -39,7 +53,7 @@ model Run {
 
   runCharacters  RunCharacter[]
   characterItems CharacterItem[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
@@ -73,9 +87,9 @@ model RunCharacter {
 }
 
 model Item {
-  id   Int    @id @default(autoincrement())
+  id   Int      @id @default(autoincrement())
   name String
-  type String // arme, armure, anneau, etc.
+  type ItemType
   act  Int // 1, 2 ou 3
 
   // Source principale de l'item

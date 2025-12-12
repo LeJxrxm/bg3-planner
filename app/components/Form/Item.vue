@@ -30,6 +30,20 @@ const rarities = [
     { label: 'Story', value: 'STORY' }
 ]
 
+const itemTypes = [
+    { label: 'Arme', value: 'WEAPON' },
+    { label: 'Armure', value: 'ARMOR' },
+    { label: 'Anneau', value: 'RING' },
+    { label: 'Amulette', value: 'AMULET' },
+    { label: 'Bottes', value: 'BOOTS' },
+    { label: 'Gants', value: 'GLOVES' },
+    { label: 'Casque', value: 'HELMET' },
+    { label: 'Cape', value: 'CLOAK' },
+    { label: 'Main gauche', value: 'OFFHAND' },
+    { label: 'Arme à distance', value: 'RANGED_WEAPON' },
+    { label: 'Instrument', value: 'INSTRUMENT' }
+]
+
 const sourceTypes = [
     { label: 'Merchant', value: 'MERCHANT' },
     { label: 'Quest', value: 'QUEST' },
@@ -58,7 +72,7 @@ const formatBytes = (bytes: number, decimals = 2) => {
 
 const schema = z.object({
     name: z.string().min(1, 'Le nom est requis'),
-    type: z.string().min(1, 'Le type est requis'),
+    type: z.enum(['WEAPON', 'ARMOR', 'RING', 'AMULET', 'BOOTS', 'GLOVES', 'HELMET', 'CLOAK', 'OFFHAND', 'RANGED_WEAPON', 'INSTRUMENT']),
     act: z.number().int().min(1).max(3),
     sourceType: z.enum(['MERCHANT', 'QUEST', 'POI']),
     merchantId: z.number().optional().nullable(),
@@ -108,7 +122,7 @@ const fileState = ref<File | null>(null)
 
 const state = reactive<Partial<Schema>>({
     name: props.initialData?.name || '',
-    type: props.initialData?.type || '',
+    type: props.initialData?.type as any || undefined,
     act: props.initialData?.act || 1,
     sourceType: props.initialData?.sourceType || 'MERCHANT',
     merchantId: props.initialData?.merchantId ?? null,
@@ -209,7 +223,8 @@ const npcs = computed(() => {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <UFormField label="Type" name="type" required>
-                <UInput class="w-full" v-model="state.type" placeholder="Ex: Arme, Armure, Anneau..." />
+                <USelect class="w-full" v-model="state.type" :items="itemTypes" option-attribute="label"
+                    value-attribute="value" placeholder="Sélectionner un type" />
             </UFormField>
 
             <UFormField label="Rareté" name="rarity">
