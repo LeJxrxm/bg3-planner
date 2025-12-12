@@ -51,6 +51,7 @@ const { data: allCharactersData, refresh: refreshCharacters } = await useFetch<{
 const allCharacters = computed(() => allCharactersData.value?.characters || [])
 
 const showCharacterSelector = ref(false)
+const showItemCreator = ref(false)
 const assignedCharacterIds = computed(() => run.value?.runCharacters.map(rc => rc.character.id) || [])
 const availableCharacters = computed(() => allCharacters.value.filter(c => !assignedCharacterIds.value.includes(c.id)))
 
@@ -162,6 +163,32 @@ const removeItemFromCharacter = async (itemId: number) => {
         toast.add({
             title: 'Erreur',
             description: error.data?.statusMessage || 'Impossible de retirer l\'item',
+            color: 'error'
+        })
+    }
+}
+
+const createItem = async (data: any) => {
+    try {
+        const newItem = await $fetch('/api/items', {
+            method: 'POST',
+            body: data
+        })
+
+        showItemCreator.value = false
+
+        // Rafraîchir la liste des items disponibles
+        await refreshNuxtData()
+
+        toast.add({
+            title: 'Succès',
+            description: 'Item créé avec succès',
+            color: 'success'
+        })
+    } catch (error: any) {
+        toast.add({
+            title: 'Erreur',
+            description: error.data?.statusMessage || 'Impossible de créer l\'item',
             color: 'error'
         })
     }
@@ -378,6 +405,8 @@ const getSourceIcon = (sourceType: string) => {
                                         <UInput placeholder="Rechercher un item..." icon="i-lucide-search"
                                             class="w-64" />
                                         <UButton icon="i-lucide-filter" variant="outline">Filtrer</UButton>
+                                        <UButton @click="showItemCreator = true" icon="i-lucide-plus" color="primary">
+                                            Créer un item</UButton>
                                     </div>
                                 </div>
 
@@ -415,29 +444,39 @@ const getSourceIcon = (sourceType: string) => {
                                 <p class="text-sm text-hypr-muted">{{ roadmapByAct[1]?.length || 0 }} item(s)</p>
                             </div>
                         </div>
-                        <div v-if="(roadmapByAct[1]?.length || 0) === 0" class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
+                        <div v-if="(roadmapByAct[1]?.length || 0) === 0"
+                            class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
                             <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 opacity-50" />
                             <p>Aucun item pour cet acte</p>
                         </div>
                         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[1]" :key="idx" class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
+                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[1]" :key="idx"
+                                class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
                                 <div class="flex gap-4">
-                                    <div class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image" :alt="roadmapItem.item.name" class="w-full h-full object-cover">
+                                    <div
+                                        class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
+                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
+                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover">
                                         <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')" class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
+                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
+                                            class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
                                         <div class="flex items-center gap-2 text-xs text-hypr-muted mb-1">
                                             <UIcon :name="getSourceIcon(roadmapItem.sourceType)" class="w-3 h-3" />
                                             <span class="truncate">{{ roadmapItem.sourceName }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <div class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <img v-if="roadmapItem.character.image" :src="roadmapItem.character.image" :alt="roadmapItem.character.name" class="w-full h-full object-cover">
-                                                <span v-else class="text-xs text-hypr-muted">{{ roadmapItem.character.name[0] }}</span>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
+                                                <img v-if="roadmapItem.character.image"
+                                                    :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
+                                                    class="w-full h-full object-cover">
+                                                <span v-else class="text-xs text-hypr-muted">{{
+                                                    roadmapItem.character.name[0] }}</span>
                                             </div>
-                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name }}</span>
+                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -456,29 +495,39 @@ const getSourceIcon = (sourceType: string) => {
                                 <p class="text-sm text-hypr-muted">{{ roadmapByAct[2]?.length || 0 }} item(s)</p>
                             </div>
                         </div>
-                        <div v-if="(roadmapByAct[2]?.length || 0) === 0" class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
+                        <div v-if="(roadmapByAct[2]?.length || 0) === 0"
+                            class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
                             <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 opacity-50" />
                             <p>Aucun item pour cet acte</p>
                         </div>
                         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[2]" :key="idx" class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
+                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[2]" :key="idx"
+                                class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
                                 <div class="flex gap-4">
-                                    <div class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image" :alt="roadmapItem.item.name" class="w-full h-full object-cover">
+                                    <div
+                                        class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
+                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
+                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover">
                                         <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')" class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
+                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
+                                            class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
                                         <div class="flex items-center gap-2 text-xs text-hypr-muted mb-1">
                                             <UIcon :name="getSourceIcon(roadmapItem.sourceType)" class="w-3 h-3" />
                                             <span class="truncate">{{ roadmapItem.sourceName }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <div class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <img v-if="roadmapItem.character.image" :src="roadmapItem.character.image" :alt="roadmapItem.character.name" class="w-full h-full object-cover">
-                                                <span v-else class="text-xs text-hypr-muted">{{ roadmapItem.character.name[0] }}</span>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
+                                                <img v-if="roadmapItem.character.image"
+                                                    :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
+                                                    class="w-full h-full object-cover">
+                                                <span v-else class="text-xs text-hypr-muted">{{
+                                                    roadmapItem.character.name[0] }}</span>
                                             </div>
-                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name }}</span>
+                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -497,29 +546,39 @@ const getSourceIcon = (sourceType: string) => {
                                 <p class="text-sm text-hypr-muted">{{ roadmapByAct[3]?.length || 0 }} item(s)</p>
                             </div>
                         </div>
-                        <div v-if="(roadmapByAct[3]?.length || 0) === 0" class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
+                        <div v-if="(roadmapByAct[3]?.length || 0) === 0"
+                            class="text-center py-8 text-hypr-muted bg-hypr-surface/50 rounded-lg border border-hypr-border">
                             <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 opacity-50" />
                             <p>Aucun item pour cet acte</p>
                         </div>
                         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[3]" :key="idx" class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
+                            <UCard v-for="(roadmapItem, idx) in roadmapByAct[3]" :key="idx"
+                                class="bg-hypr-surface border-hypr-border hover:border-hypr-accent transition-all">
                                 <div class="flex gap-4">
-                                    <div class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image" :alt="roadmapItem.item.name" class="w-full h-full object-cover">
+                                    <div
+                                        class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
+                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
+                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover">
                                         <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')" class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
+                                        <div :class="getRarityColor(roadmapItem.item.rarity || 'COMMON')"
+                                            class="font-semibold truncate mb-1">{{ roadmapItem.item.name }}</div>
                                         <div class="flex items-center gap-2 text-xs text-hypr-muted mb-1">
                                             <UIcon :name="getSourceIcon(roadmapItem.sourceType)" class="w-3 h-3" />
                                             <span class="truncate">{{ roadmapItem.sourceName }}</span>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <div class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
-                                                <img v-if="roadmapItem.character.image" :src="roadmapItem.character.image" :alt="roadmapItem.character.name" class="w-full h-full object-cover">
-                                                <span v-else class="text-xs text-hypr-muted">{{ roadmapItem.character.name[0] }}</span>
+                                            <div
+                                                class="w-6 h-6 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
+                                                <img v-if="roadmapItem.character.image"
+                                                    :src="roadmapItem.character.image" :alt="roadmapItem.character.name"
+                                                    class="w-full h-full object-cover">
+                                                <span v-else class="text-xs text-hypr-muted">{{
+                                                    roadmapItem.character.name[0] }}</span>
                                             </div>
-                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name }}</span>
+                                            <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -578,6 +637,28 @@ const getSourceIcon = (sourceType: string) => {
                             </div>
                         </template>
                     </UCard>
+                </template>
+            </UModal>
+
+            <!-- Item Creator Modal -->
+            <UModal fullscreen class="w-full" v-model:open="showItemCreator">
+
+                <template #header>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Créer un nouvel item</h3>
+                    </div>
+                </template>
+
+                <template #body>
+                    <FormItem @submit="createItem" />
+                </template>
+
+                <template #footer>
+                    <div class="flex justify-end w-full gap-2">
+                        <UButton color="error" @click="showItemCreator = false" variant="outline">
+                            Annuler
+                        </UButton>
+                    </div>
                 </template>
             </UModal>
         </UTabs>
