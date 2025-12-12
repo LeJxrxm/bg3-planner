@@ -7,10 +7,10 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy only package files for better caching
-COPY package.json package-lock.json* prisma.config.ts ./
+COPY package.json prisma.config.ts ./
 
-# Import npm lockfile to pnpm and install dependencies
-RUN pnpm import && pnpm install --frozen-lockfile --prefer-offline
+# Install dependencies (pnpm will generate lockfile)
+RUN pnpm install --no-frozen-lockfile
 
 # Stage 2: Build
 FROM node:20-alpine AS builder
