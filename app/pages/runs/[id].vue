@@ -225,6 +225,78 @@ const tabs = [
     { slot: 'roadmap', label: 'Roadmap', icon: 'i-lucide-map' }
 ]
 
+// Equipment slots from DB
+const { data: equipmentSlots } = await useFetch('/api/equipment-slots')
+
+type EquipmentSlot = {
+    id: number
+    key: string
+    label: string
+    itemType: string
+    icon: string
+    order: number
+}
+
+// Modal state for slot selection
+const showSlotModal = ref(false)
+const selectedSlot = ref<EquipmentSlot | null>(null)
+const selectedSlotCharacter = ref<CharacterWithItems | null>(null)
+
+// Filter items by slot type
+const slotFilteredItems = computed(() => {
+    if (!selectedSlot.value || !itemsData.value?.items || !run.value) return []
+    
+    const slotType = selectedSlot.value.itemType
+    
+    // Get assigned item IDs
+    const assignedItemIds = new Set<number>()
+    run.value.runCharacters.forEach(rc => {
+        rc.character.items?.forEach(ci => {
+            assignedItemIds.add(ci.item.id)
+        })
+    })
+    
+    // Filter by slot type and not assigned
+    return itemsData.value.items.filter(item => 
+        item.type === slotType && !assignedItemIds.has(item.id)
+    )
+})
+
+const openSlotModal = (slot: EquipmentSlot, character: CharacterWithItems) => {
+    selectedSlot.value = slot
+    selectedSlotCharacter.value = character
+    searchQuery.value = ''
+    showSlotModal.value = true
+}
+
+const assignItemToSlot = async (item: Item) => {
+    if (!selectedSlotCharacter.value || !selectedSlot.value) return
+    
+    try {
+        await $fetch(`/api/runs/${runId}/assign-item`, {
+            method: 'POST',
+            body: {
+                characterId: selectedSlotCharacter.value.id,
+                itemId: item.id,
+                slotId: selectedSlot.value.id
+            }
+        })
+        
+        showSlotModal.value = false
+        await refreshRun()
+    } catch (error: any) {
+        toast.add({
+            title: 'Erreur',
+            description: error.data?.statusMessage || 'Impossible d\'ajouter l\'item',
+            color: 'error'
+        })
+    }
+}
+
+const getItemForSlot = (character: CharacterWithItems, slotId: number) => {
+    return character.items?.find(ci => ci.slotId === slotId)?.item || null
+}
+
 // Roadmap computation
 const roadmapByAct = computed(() => {
     if (!run.value) return { 1: [], 2: [], 3: [] }
@@ -311,135 +383,98 @@ const getSourceIcon = (sourceType: string) => {
         <UTabs :items="tabs">
             <!-- Setup Tab -->
             <template #setup>
-                <div class="flex gap-6 items-start mt-10">
-                    <!-- Character Selection Sidebar -->
-                    <div class="w-80 shrink-0 space-y-3">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-semibold text-hypr-text">Party</h2>
-                            <UButton v-if="(run?.runCharacters?.length || 0) < 4" @click="showCharacterSelector = true"
-                                icon="i-lucide-user-plus" size="xs" variant="outline" />
+                <div class="mt-10 space-y-6">
+                    <!-- Header with Add Character -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-hypr-text">Équipement de la Party</h2>
+                            <p class="text-sm text-hypr-muted">Cliquez sur un emplacement pour assigner un item</p>
                         </div>
+                        <UButton v-if="(run?.runCharacters?.length || 0) < 4" @click="showCharacterSelector = true"
+                            icon="i-lucide-user-plus" color="primary">
+                            Ajouter un personnage
+                        </UButton>
+                    </div>
 
-                        <div v-for="runChar in run?.runCharacters" :key="runChar.character.id"
-                            @click="selectedCharacterId = runChar.character.id"
-                            class="group cursor-pointer transition-all duration-200" :class="[
-                                selectedCharacterId === runChar.character.id
-                                    ? 'bg-hypr-accent/20 border-hypr-accent'
-                                    : 'bg-hypr-surface border-hypr-border hover:border-hypr-overlay'
-                            ]">
-                            <UCard>
-                                <div class="flex items-center gap-3">
-                                    <div class="relative">
+                    <!-- Characters Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+                        <div v-for="runChar in run?.runCharacters" :key="runChar.character.id">
+                            <UCard class="bg-hypr-surface border-hypr-border h-full">
+                                <!-- Character Header -->
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center gap-3">
                                         <div
-                                            class="w-16 h-16 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
+                                            class="w-14 h-14 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden">
                                             <NuxtImg v-if="runChar.character.image" :src="runChar.character.image"
                                                 :alt="runChar.character.name" class="w-full h-full object-cover" />
-                                            <span v-else class="text-2xl text-hypr-muted">
+                                            <span v-else class="text-xl text-hypr-muted">
                                                 {{ runChar.character.name[0] }}
                                             </span>
                                         </div>
-                                        <div v-if="selectedCharacterId === runChar.character.id"
-                                            class="absolute -bottom-1 -right-1 w-5 h-5 bg-hypr-accent rounded-full flex items-center justify-center">
-                                            <UIcon name="i-lucide-check" class="w-3 h-3 text-white" />
+                                        <div>
+                                            <div class="font-semibold text-hypr-text">{{ runChar.character.name }}</div>
+                                            <div v-if="runChar.character.classe" class="text-xs text-hypr-muted">
+                                                {{ runChar.character.classe }}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="font-semibold text-hypr-text truncate">{{ runChar.character.name }}
-                                        </div>
-                                        <div v-if="runChar.character.classe" class="text-sm text-hypr-muted">{{
-                                            runChar.character.classe }}</div>
-                                        <div v-if="runChar.character.subclass" class="text-xs text-hypr-dim">{{
-                                            runChar.character.subclass }}</div>
                                     </div>
                                     <UButton @click.stop="removeCharacter(runChar.character.id)" icon="i-lucide-x"
-                                        size="xs" color="error" variant="ghost"
-                                        class="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        size="xs" color="error" variant="ghost" />
+                                </div>
+
+                                <!-- Equipment Slots -->
+                                <div class="space-y-2">
+                                    <div v-for="slot in equipmentSlots" :key="slot.id"
+                                        @click="openSlotModal(slot, runChar.character)"
+                                        class="group cursor-pointer p-2 rounded-lg bg-hypr-bg hover:bg-hypr-overlay hover:border-hypr-accent border border-hypr-border transition-all">
+                                        <div v-if="getItemForSlot(runChar.character, slot.id)" class="flex items-center gap-2">
+                                            <div
+                                                class="w-10 h-10 rounded bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
+                                                <NuxtImg v-if="getItemForSlot(runChar.character, slot.id)?.image"
+                                                    :src="getItemForSlot(runChar.character, slot.id)!.image!"
+                                                    :alt="getItemForSlot(runChar.character, slot.id)!.name"
+                                                    class="w-full h-full object-cover" />
+                                                <UIcon v-else :name="slot.icon" class="w-5 h-5 text-hypr-muted" />
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-xs text-hypr-muted">{{ slot.label }}</div>
+                                                <div class="text-sm font-medium text-hypr-text truncate"
+                                                    :class="getRarityColor(getItemForSlot(runChar.character, slot.id)?.rarity || 'COMMON')">
+                                                    {{ getItemForSlot(runChar.character, slot.id)!.name }}
+                                                </div>
+                                            </div>
+                                            <UButton @click.stop="removeItemFromCharacter(getItemForSlot(runChar.character, slot.id)!.id)"
+                                                icon="i-lucide-x" size="xs" color="error" variant="ghost"
+                                                class="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        </div>
+                                        <div v-else class="flex items-center gap-2">
+                                            <div
+                                                class="w-10 h-10 rounded bg-hypr-overlay/50 flex items-center justify-center shrink-0">
+                                                <UIcon :name="slot.icon" class="w-5 h-5 text-hypr-muted/50" />
+                                            </div>
+                                            <div class="flex-1">
+                                                <div class="text-xs text-hypr-muted">{{ slot.label }}</div>
+                                                <div class="text-sm text-hypr-dim">Vide</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </UCard>
                         </div>
-                    </div>
 
-                    <!-- Main Content Area -->
-                    <div class="flex-1 min-w-0">
-                        <div v-if="selectedCharacter" class="space-y-6">
-                            <!-- Character Header -->
-                            <UCard class="bg-linear-to-br from-hypr-surface to-hypr-overlay border-hypr-border">
-                                <div class="flex items-center gap-6">
-                                    <div
-                                        class="w-24 h-24 rounded-lg bg-hypr-bg flex items-center justify-center overflow-hidden">
-                                        <NuxtImg v-if="selectedCharacter.image" :src="selectedCharacter.image"
-                                            :alt="selectedCharacter.name" class="w-full h-full object-cover" />
-                                        <span v-else class="text-4xl text-hypr-muted">
-                                            {{ selectedCharacter.name[0] }}
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h2 class="text-2xl font-bold text-hypr-text mb-1">{{ selectedCharacter.name }}
-                                        </h2>
-                                        <div class="flex items-center gap-3 text-sm">
-                                            <span v-if="selectedCharacter.classe"
-                                                class="px-3 py-1 bg-hypr-bg rounded-full text-hypr-accent font-medium">
-                                                {{ selectedCharacter.classe }}
-                                            </span>
-                                            <span v-if="selectedCharacter.subclass" class="text-hypr-subtext">
-                                                {{ selectedCharacter.subclass }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div v-for="item in selectedCharacter.items" :key="item.item.id" class="flex gap-2">
-                                        <div class="relative group">
-                                            <UAvatar :src="item.item.image || '/images/Birthright_hat.webp'"
-                                                :alt="item.item.name" :title="item.item.name" size="lg"
-                                                class="border" />
-
-                                            <UButton @click="removeItemFromCharacter(item.item.id)" icon="i-lucide-x"
-                                                size="xs" color="error"
-                                                class="absolute rounded-full -top-2 -left-2 opacity-0 group-hover:opacity-100 z-50 transition-opacity" />
-                                        </div>
-
-
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="text-sm text-hypr-muted mb-1">Items équipés</div>
-                                        <div class="text-3xl font-bold text-hypr-accent">{{
-                                            selectedCharacter.items?.length
-                                            || 0
-                                        }} / 12</div>
-                                    </div>
-                                </div>
-                            </UCard>
-
-                            <!-- Items Grid -->
-                            <div>
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="text-xl font-semibold text-hypr-text">Items disponibles</h3>
-                                    <div class="flex gap-2">
-                                        <UInput v-model="searchQuery" placeholder="Rechercher un item..."
-                                            icon="i-lucide-search" class="w-64" />
-                                        <UButton icon="i-lucide-filter" variant="outline">Filtrer</UButton>
-                                        <UButton @click="showItemCreator = true" icon="i-lucide-plus" color="primary">
-                                            Créer un item</UButton>
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-3 gap-4">
-                                    <div v-for="item in availableItems" :key="item.id">
-                                        <Item :item="item" :clickable="true" @click="assignItemToCharacter" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- No character selected state -->
-                        <div v-else class="flex items-center justify-center h-96">
+                        <!-- Empty State -->
+                        <div v-if="(run?.runCharacters?.length || 0) === 0"
+                            class="col-span-full flex items-center justify-center py-20">
                             <div class="text-center text-hypr-muted">
                                 <UIcon name="i-lucide-users" class="w-16 h-16 mx-auto mb-4 opacity-50" />
-                                <p>Sélectionnez un personnage pour gérer ses items</p>
+                                <p class="mb-4">Aucun personnage dans cette run</p>
+                                <UButton @click="showCharacterSelector = true" icon="i-lucide-user-plus" color="primary">
+                                    Ajouter un personnage
+                                </UButton>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </template>
 
             <!-- Roadmap Tab -->
@@ -660,6 +695,7 @@ const getSourceIcon = (sourceType: string) => {
         </UModal>
 
         <!-- Item Creator Modal -->
+        <!-- Item Creator Modal -->
         <UModal fullscreen class="w-full" v-model:open="showItemCreator">
 
             <template #header>
@@ -675,6 +711,54 @@ const getSourceIcon = (sourceType: string) => {
             <template #footer>
                 <div class="flex justify-end w-full gap-2">
                     <UButton color="error" @click="showItemCreator = false" variant="outline">
+                        Annuler
+                    </UButton>
+                </div>
+            </template>
+        </UModal>
+
+        <!-- Slot Item Selector Modal -->
+        <UModal v-model:open="showSlotModal" class="w-full max-w-4xl">
+            <template #header>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-hypr-text">
+                            Sélectionner {{ selectedSlot?.label }}
+                        </h3>
+                        <p class="text-sm text-hypr-muted">{{ selectedSlotCharacter?.name }}</p>
+                    </div>
+                </div>
+            </template>
+
+            <template #body>
+                <div class="space-y-4">
+                    <!-- Search and Create -->
+                    <div class="flex gap-2">
+                        <UInput v-model="searchQuery" placeholder="Rechercher un item..." icon="i-lucide-search"
+                            class="flex-1" />
+                        <UButton @click="showItemCreator = true; showSlotModal = false" icon="i-lucide-plus"
+                            color="primary">
+                            Créer un item
+                        </UButton>
+                    </div>
+
+                    <!-- Items Grid -->
+                    <div class="grid grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto">
+                        <div v-for="item in slotFilteredItems" :key="item.id" @click="assignItemToSlot(item)"
+                            class="cursor-pointer">
+                            <Item :item="item" :clickable="true" />
+                        </div>
+                        <div v-if="slotFilteredItems.length === 0" class="col-span-3 py-12 text-center">
+                            <UIcon name="i-lucide-package-open" class="w-12 h-12 mx-auto mb-2 text-hypr-muted opacity-50" />
+                            <p class="text-hypr-muted">Aucun item disponible pour cet emplacement</p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template #footer>
+                <div class="flex justify-end w-full">
+                    <UButton color="error" @click="showSlotModal = false" variant="outline">
                         Annuler
                     </UButton>
                 </div>

@@ -132,6 +132,10 @@ model CharacterItem {
   item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
   itemId Int
 
+  // Référence vers le slot où l'item est équipé
+  slot   EquipmentSlot @relation(fields: [slotId], references: [id])
+  slotId Int
+
   status    ItemStatus @default(TO_GET)
   note      String?
   createdAt DateTime   @default(now())
@@ -139,6 +143,22 @@ model CharacterItem {
 
   // Empêche qu'un même item soit assigné à plusieurs personnages dans la même run
   @@unique([runId, itemId], name: "uniq_item_per_run")
+  // Un personnage ne peut avoir qu'un item par slot dans une run
+  @@unique([runId, characterId, slotId], name: "uniq_slot_per_character")
+}
+
+model EquipmentSlot {
+  id       Int      @id @default(autoincrement())
+  key      String   @unique // "HELMET", "RING_1", "RING_2", etc.
+  label    String   // "Casque", "Anneau gauche", etc.
+  itemType ItemType // Type d'item accepté
+  icon     String   // Icône lucide
+  order    Int      // Ordre d'affichage
+  
+  characterItems CharacterItem[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 // === Nouvelles entités de source ===
