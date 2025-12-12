@@ -31,12 +31,18 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* prisma.config.ts ./
 
-# Install pnpm and production dependencies only
-#RUN npm install -g pnpm && pnpm install --prod --no-frozen-lockfile
+# Install production dependencies
 RUN npm install --production
 
-# Copy Prisma schema and generate client
+# Copy Prisma schema and migrations
 COPY --from=builder /app/prisma ./prisma
+
+# Copy built application from builder
+COPY --from=builder /app/.output ./.output
+
+# Copy generated Prisma client
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Expose port
 EXPOSE 3000
