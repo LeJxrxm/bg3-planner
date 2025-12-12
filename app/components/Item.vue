@@ -22,15 +22,23 @@ const textColors: Record<Rarity, string> = {
 
 const props = defineProps<{
     item: Item
+    clickable?: boolean
+}>();
+
+const emit = defineEmits<{
+    click: [item: Item]
 }>();
 </script>
 
 <template>
 
-    <UCard :class="[
-        `h-full border transition ease-in duration-100 rounded bg-linear-to-b from-2% to-transparent via-transparent max-w-lg z-10 p-4 space-y-1 my-2 relative overflow-visible`,
+    <UCard 
+        @click="clickable ? emit('click', item) : undefined"
+        :class="[
+        `h-full border transition ease-in duration-100 rounded bg-linear-to-b from-2% to-transparent via-transparent w-full z-10 p-4 space-y-1 my-2 relative overflow-visible`,
         item.rarity && item.rarity in colors ? colors[item.rarity as Rarity] : '',
-        'hover:scale-[1.02]'
+        'hover:scale-[1.02]',
+        clickable ? 'cursor-pointer' : ''
     ]">
         <div class="grid grid-cols-2 lg:grid-cols-6">
             <div class="lg:col-span-2">
