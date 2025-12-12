@@ -175,23 +175,28 @@ const { data: npcsData } = await useFetch<{ npcs: Array<{ id: number, name: stri
 
 const quests = computed(() => {
     if (!questsData.value) return []
-    return questsData.value.quests.map(quest => ({ value: quest.id, label: quest.name }))
+
+    const base = { value: null, label: 'Laisser vide' };
+    return [base, ...questsData.value.quests.map(quest => ({ value: quest.id, label: quest.name }))];
 })
 
 const merchants = computed(() => {
     if (!merchantsData.value) return []
-    return merchantsData.value.merchants.map(merchant => ({ value: merchant.id, label: merchant.name }))
+    const base = { value: null, label: 'Laisser vide' };
+    return [base, ...merchantsData.value.merchants.map(merchant => ({ value: merchant.id, label: merchant.name }))];
 })
 
 const pois = computed(() => {
     if (!poisData.value) return []
-    return poisData.value.pois.map(poi => ({ value: poi.id, label: poi.name }))
+    const base = { value: null, label: 'Laisser vide' };
+    return [base, ...poisData.value.pois.map(poi => ({ value: poi.id, label: poi.name }))];
 })
 
 
 const npcs = computed(() => {
     if (!npcsData.value) return []
-    return npcsData.value.npcs.map(npc => ({ value: npc.id, label: npc.name }))
+    const base = { value: null, label: 'Laisser vide' };
+    return [base, ...npcsData.value.npcs.map(npc => ({ value: npc.id, label: npc.name }))];
 })
 
 </script>

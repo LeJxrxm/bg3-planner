@@ -99,11 +99,25 @@ const removeCharacter = async (characterId: number) => {
 }
 
 // Fetch all available items
-const { data: itemsData } = await useFetch<{ items: Item[], total: number }>('/api/items', {
-    query: {
+const searchQuery = ref('')
+const debouncedSearchQuery = computed(() => searchQuery.value)
+
+// Watch for search changes with debounce
+let debounceTimer: NodeJS.Timeout | null = null
+watch(searchQuery, () => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+        refreshItems()
+    }, 300)
+})
+
+const { data: itemsData, refresh: refreshItems } = await useFetch<{ items: Item[], total: number }>('/api/items', {
+    query: computed(() => ({
         page: 1,
-        itemsPerPage: 100
-    }
+        itemsPerPage: 100,
+        search: searchQuery.value || undefined
+    })),
+    watch: false
 })
 
 const availableItems = computed(() => {
@@ -210,8 +224,6 @@ const tabs = [
     { slot: 'setup', label: 'Setup', icon: 'i-lucide-users' },
     { slot: 'roadmap', label: 'Roadmap', icon: 'i-lucide-map' }
 ]
-
-const selectedTab = ref('setup')
 
 // Roadmap computation
 const roadmapByAct = computed(() => {
@@ -392,7 +404,7 @@ const getSourceIcon = (sourceType: string) => {
                                         <div class="text-3xl font-bold text-hypr-accent">{{
                                             selectedCharacter.items?.length
                                             || 0
-                                        }} / 12</div>
+                                            }} / 12</div>
                                     </div>
                                 </div>
                             </UCard>
@@ -402,8 +414,8 @@ const getSourceIcon = (sourceType: string) => {
                                 <div class="flex items-center justify-between mb-4">
                                     <h3 class="text-xl font-semibold text-hypr-text">Items disponibles</h3>
                                     <div class="flex gap-2">
-                                        <UInput placeholder="Rechercher un item..." icon="i-lucide-search"
-                                            class="w-64" />
+                                        <UInput v-model="searchQuery" placeholder="Rechercher un item..."
+                                            icon="i-lucide-search" class="w-64" />
                                         <UButton icon="i-lucide-filter" variant="outline">Filtrer</UButton>
                                         <UButton @click="showItemCreator = true" icon="i-lucide-plus" color="primary">
                                             Créer un item</UButton>
@@ -455,8 +467,8 @@ const getSourceIcon = (sourceType: string) => {
                                 <div class="flex gap-4">
                                     <div
                                         class="w-16 h-16 rounded-lg bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <img v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
-                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover">
+                                        <NuxtImg v-if="roadmapItem.item.image" :src="roadmapItem.item.image"
+                                            :alt="roadmapItem.item.name" class="w-full h-full object-cover" />
                                         <UIcon v-else name="i-lucide-package" class="w-8 h-8 text-hypr-muted" />
                                     </div>
                                     <div class="flex-1 min-w-0">
@@ -476,7 +488,7 @@ const getSourceIcon = (sourceType: string) => {
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
                                             <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -527,7 +539,7 @@ const getSourceIcon = (sourceType: string) => {
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
                                             <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -578,7 +590,7 @@ const getSourceIcon = (sourceType: string) => {
                                                     roadmapItem.character.name[0] }}</span>
                                             </div>
                                             <span class="text-xs text-hypr-subtext">{{ roadmapItem.character.name
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -587,80 +599,81 @@ const getSourceIcon = (sourceType: string) => {
                     </div>
                 </div>
             </template>
+        </UTabs>
 
-            <!-- Character Selector Modal -->
-            <UModal v-model:open="showCharacterSelector">
-                <template #body>
-                    <UCard class="sm:max-w-2xl">
-                        <template #header>
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-semibold">Ajouter un personnage à la run</h3>
-                                <UButton @click="showCharacterSelector = false" icon="i-lucide-x" variant="ghost"
-                                    size="xs" />
-                            </div>
-                        </template>
 
-                        <div v-if="availableCharacters.length === 0" class="text-center py-8 text-hypr-muted">
-                            <UIcon name="i-lucide-users" class="w-12 h-12 mx-auto mb-3 opacity-50" />
-                            <p>Tous les personnages sont déjà assignés à cette run</p>
-                            <UButton to="/characters/add" class="mt-4" size="sm">
-                                Créer un nouveau personnage
-                            </UButton>
+        <!-- Character Selector Modal -->
+        <UModal v-model:open="showCharacterSelector">
+            <template #content>
+                <UCard class="sm:max-w-2xl">
+                    <template #header>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold">Ajouter un personnage à la run</h3>
+                            <UButton @click="showCharacterSelector = false" icon="i-lucide-x" variant="ghost"
+                                size="xs" />
                         </div>
+                    </template>
 
-                        <div v-else class="grid grid-cols-2 gap-3">
-                            <UCard v-for="character in availableCharacters" :key="character.id"
-                                class="cursor-pointer hover:border-hypr-accent transition-all"
-                                @click="assignCharacter(character)">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-12 h-12 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
-                                        <img v-if="character.image" :src="character.image" :alt="character.name"
-                                            class="w-full h-full object-cover">
-                                        <span v-else class="text-xl text-hypr-muted">
-                                            {{ character.name[0] }}
-                                        </span>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="font-medium text-hypr-text truncate">{{ character.name }}</div>
-                                        <div class="text-sm text-hypr-muted">{{ character.classe || 'No class' }}</div>
-                                    </div>
-                                </div>
-                            </UCard>
-                        </div>
-
-                        <template #footer>
-                            <div class="flex justify-end">
-                                <UButton @click="showCharacterSelector = false" variant="outline">
-                                    Annuler
-                                </UButton>
-                            </div>
-                        </template>
-                    </UCard>
-                </template>
-            </UModal>
-
-            <!-- Item Creator Modal -->
-            <UModal fullscreen class="w-full" v-model:open="showItemCreator">
-
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">Créer un nouvel item</h3>
-                    </div>
-                </template>
-
-                <template #body>
-                    <FormItem @submit="createItem" />
-                </template>
-
-                <template #footer>
-                    <div class="flex justify-end w-full gap-2">
-                        <UButton color="error" @click="showItemCreator = false" variant="outline">
-                            Annuler
+                    <div v-if="availableCharacters.length === 0" class="text-center py-8 text-hypr-muted">
+                        <UIcon name="i-lucide-users" class="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p>Tous les personnages sont déjà assignés à cette run</p>
+                        <UButton to="/characters/add" class="mt-4" size="sm">
+                            Créer un nouveau personnage
                         </UButton>
                     </div>
-                </template>
-            </UModal>
-        </UTabs>
+
+                    <div v-else class="grid grid-cols-2 gap-3">
+                        <UCard v-for="character in availableCharacters" :key="character.id"
+                            class="cursor-pointer hover:border-hypr-accent transition-all"
+                            @click="assignCharacter(character)">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-hypr-overlay flex items-center justify-center overflow-hidden shrink-0">
+                                    <img v-if="character.image" :src="character.image" :alt="character.name"
+                                        class="w-full h-full object-cover">
+                                    <span v-else class="text-xl text-hypr-muted">
+                                        {{ character.name[0] }}
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-hypr-text truncate">{{ character.name }}</div>
+                                    <div class="text-sm text-hypr-muted">{{ character.classe || 'No class' }}</div>
+                                </div>
+                            </div>
+                        </UCard>
+                    </div>
+
+                    <template #footer>
+                        <div class="flex justify-end">
+                            <UButton @click="showCharacterSelector = false" variant="outline">
+                                Annuler
+                            </UButton>
+                        </div>
+                    </template>
+                </UCard>
+            </template>
+        </UModal>
+
+        <!-- Item Creator Modal -->
+        <UModal fullscreen class="w-full" v-model:open="showItemCreator">
+
+            <template #header>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Créer un nouvel item</h3>
+                </div>
+            </template>
+
+            <template #body>
+                <FormItem @submit="createItem" />
+            </template>
+
+            <template #footer>
+                <div class="flex justify-end w-full gap-2">
+                    <UButton color="error" @click="showItemCreator = false" variant="outline">
+                        Annuler
+                    </UButton>
+                </div>
+            </template>
+        </UModal>
     </div>
 </template>
