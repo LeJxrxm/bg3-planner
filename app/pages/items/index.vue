@@ -25,10 +25,10 @@ const { data: items, refresh } = await useFetch<ItemsResponse>('/api/items', {
 let debounceTimer: NodeJS.Timeout | null = null
 watch(search, () => {
     if (debounceTimer) clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => {
+    debounceTimer = setTimeout(async () => {
         isSearching = true
         page.value = 1 // Reset to first page when searching
-        refresh()
+        await refresh()
         isSearching = false
     }, 300)
 })
