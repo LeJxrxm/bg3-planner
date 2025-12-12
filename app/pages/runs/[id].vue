@@ -100,6 +100,11 @@ watch(searchQuery, () => {
     }, 300)
 })
 
+// Clean up timer on unmount
+onUnmounted(() => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+})
+
 const { data: itemsData, refresh: refreshItems } = await useFetch<{ items: Item[], total: number }>('/api/items', {
     query: computed(() => ({
         page: 1,
