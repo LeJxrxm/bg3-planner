@@ -1,0 +1,35 @@
+services:
+  bg3-postgres:
+    image: postgres:16-alpine
+    container_name: bg3-postgres
+    environment:
+      - POSTGRES_USER=bg3
+      - POSTGRES_PASSWORD=bg3
+      - POSTGRES_DB=bg3_planner
+    volumes:
+      - bg3-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - bg-3-planner
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NUXT_DATABASE_URL=${NUXT_DATABASE_URL}
+      - NODE_ENV=production
+      - NUXT_HOST=0.0.0.0
+      - NUXT_PORT=3000
+    depends_on:
+      - bg3-postgres
+    restart: unless-stopped
+    networks:
+      - bg-3-planner
+volumes:
+  bg3-postgres-data:
+
+networks:
+  bg-3-planner:
+    driver: bridge
