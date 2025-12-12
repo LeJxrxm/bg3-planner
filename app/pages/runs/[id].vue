@@ -90,7 +90,20 @@ const { data: itemsData } = await useFetch<{ items: Item[], total: number }>('/a
     }
 })
 
-const availableItems = computed(() => itemsData.value?.items || [])
+const availableItems = computed(() => {
+    if (!itemsData.value?.items || !run.value) return []
+    
+    // Récupérer tous les IDs d'items déjà assignés dans cette run
+    const assignedItemIds = new Set<number>()
+    run.value.runCharacters.forEach(rc => {
+        rc.character.items?.forEach(ci => {
+            assignedItemIds.add(ci.item.id)
+        })
+    })
+    
+    // Filtrer les items pour ne garder que ceux qui ne sont pas assignés
+    return itemsData.value.items.filter(item => !assignedItemIds.has(item.id))
+})
 
 const assignItemToCharacter = async (item: Item) => {
     if (!selectedCharacter.value) {
